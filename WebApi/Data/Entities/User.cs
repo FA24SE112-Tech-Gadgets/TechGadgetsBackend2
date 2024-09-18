@@ -4,7 +4,6 @@ public class User
 {
     public int Id { get; set; }
     public string FullName { get; set; } = default!;
-    public string Username { get; set; } = default!;
     public string Password { get; set; } = default!;
     public string AvatarUrl { get; set; } = default!;
     public string Address { get; set; } = default!;
@@ -15,6 +14,7 @@ public class User
     public Role Role { get; set; }
     public string Email { get; set; } = default!;
     public UserStatus Status { get; set; }
+    public LoginMethod LoginMethod { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
@@ -27,6 +27,11 @@ public class User
     public ICollection<Order> Orders { get; set; } = [];
     public ICollection<SellerApplication> SellerApplications { get; set; } = [];
     public ICollection<VoucherUser> VoucherUsers { get; set; } = [];
+}
+
+public enum LoginMethod
+{
+    Google, Default
 }
 
 public enum Role
