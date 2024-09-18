@@ -6,6 +6,7 @@ public class UserVerify
     public int UserId { get; set; }
     public string VerifyCode { get; set; } = default!;
     public VerifyStatus Status;
+    public DateTime CreatedAt { get; set; }
 
     public User? User { get; set; }
 }

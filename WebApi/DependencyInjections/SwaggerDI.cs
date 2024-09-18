@@ -9,6 +9,7 @@ public static class SwaggerDI
         services.AddSwaggerGen(option =>
         {
             option.SwaggerDoc("v1", new OpenApiInfo { Title = "api", Version = "v1" });
+            option.CustomSchemaIds(t => t.FullName?.Replace('+', '.'));
             option.EnableAnnotations();
             option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
