@@ -24,6 +24,7 @@ var app = builder.Build();
 app.UseCorsPolicy();
 app.UseOpenApi();
 app.UseTechGadgetsExceptionHandler();
+app.ApplyMigrations();
 
 app.MapEndpoints();
 
