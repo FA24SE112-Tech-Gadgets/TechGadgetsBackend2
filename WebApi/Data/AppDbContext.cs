@@ -36,6 +36,7 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<SpecificationUnit> SpecificationUnits { get; set; }
     public DbSet<SpecificationValue> SpecificationValues { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<UserVerify> UserVerify { get; set; }
     public DbSet<Voucher> Vouchers { get; set; }
     public DbSet<VoucherType> VoucherTypes { get; set; }
     public DbSet<VoucherUser> VoucherUsers { get; set; }

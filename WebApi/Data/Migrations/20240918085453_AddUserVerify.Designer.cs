@@ -12,7 +12,7 @@ using WebApi.Data;
 namespace WebApi.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240918085241_AddUserVerify")]
+    [Migration("20240918085453_AddUserVerify")]
     partial class AddUserVerify
     {
         /// <inheritdoc />
