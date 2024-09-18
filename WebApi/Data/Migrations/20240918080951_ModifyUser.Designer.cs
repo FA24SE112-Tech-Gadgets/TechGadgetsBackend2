@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebApi.Data;
@@ -11,9 +12,11 @@ using WebApi.Data;
 namespace WebApi.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240918080951_ModifyUser")]
+    partial class ModifyUser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -911,32 +914,6 @@ namespace WebApi.Data.Migrations
                     b.ToTable("User", (string)null);
                 });
 
-            modelBuilder.Entity("WebApi.Data.Entities.UserVerify", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("VerifyCode")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("UserVerify", (string)null);
-                });
-
             modelBuilder.Entity("WebApi.Data.Entities.Voucher", b =>
                 {
                     b.Property<int>("Id")
@@ -1421,17 +1398,6 @@ namespace WebApi.Data.Migrations
                     b.Navigation("SpecificationUnit");
                 });
 
-            modelBuilder.Entity("WebApi.Data.Entities.UserVerify", b =>
-                {
-                    b.HasOne("WebApi.Data.Entities.User", "User")
-                        .WithMany("UserVerify")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("WebApi.Data.Entities.Voucher", b =>
                 {
                     b.HasOne("WebApi.Data.Entities.DiscountType", "DiscountType")
@@ -1612,8 +1578,6 @@ namespace WebApi.Data.Migrations
                     b.Navigation("Seller");
 
                     b.Navigation("SellerApplications");
-
-                    b.Navigation("UserVerify");
 
                     b.Navigation("VoucherUsers");
                 });
