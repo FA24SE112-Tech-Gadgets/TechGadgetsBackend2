@@ -12,7 +12,7 @@ using WebApi.Data;
 namespace WebApi.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240918073503_AddLoginMethodAndRemoveUsernameInUser")]
+    [Migration("20240918074141_AddLoginMethodAndRemoveUsernameInUser")]
     partial class AddLoginMethodAndRemoveUsernameInUser
     {
         /// <inheritdoc />
@@ -892,8 +892,9 @@ namespace WebApi.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("LoginMethod")
-                        .HasColumnType("integer");
+                    b.Property<string>("LoginMethod")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<string>("Password")
                         .IsRequired()

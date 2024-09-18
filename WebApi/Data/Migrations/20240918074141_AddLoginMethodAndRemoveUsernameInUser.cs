@@ -10,31 +10,19 @@ namespace WebApi.Data.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            migrationBuilder.RenameColumn(
                 name: "Username",
-                table: "User");
-
-            migrationBuilder.AddColumn<int>(
-                name: "LoginMethod",
                 table: "User",
-                type: "integer",
-                nullable: false,
-                defaultValue: 0);
+                newName: "LoginMethod");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropColumn(
+            migrationBuilder.RenameColumn(
                 name: "LoginMethod",
-                table: "User");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Username",
                 table: "User",
-                type: "text",
-                nullable: false,
-                defaultValue: "");
+                newName: "Username");
         }
     }
 }
