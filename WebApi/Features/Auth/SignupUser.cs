@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using WebApi.Common.Endpoints;
 using WebApi.Common.Exceptions;
+using WebApi.Common.Utils;
 using WebApi.Data;
 using WebApi.Data.Entities;
 using WebApi.Features.Auth.Mappers;
@@ -14,7 +15,7 @@ namespace WebApi.Features.Auth;
 
 public class SignupUser
 {
-    public record Request(string FullName, string Password, string Email);
+    public record Request(string FullName, string Password, string Email, string LoginMethod);
     private const int SaltSize = 16; // 128 bit 
     private const int KeySize = 32;  // 256 bit
     private const int Iterations = 10000; // Number of PBKDF2 iterations
@@ -26,6 +27,15 @@ public class SignupUser
             RuleFor(r => r.FullName).NotEmpty();
             RuleFor(r => r.Password).NotEmpty().MinimumLength(8);
             RuleFor(r => r.Email).NotEmpty().EmailAddress();
+            RuleFor(r => r.LoginMethod)
+            .NotEmpty()
+            .Must(BeAValidLoginMethod)
+            .WithMessage("Invalid LoginMethod, must be 'Google' or 'Default'.");
+        }
+
+        private bool BeAValidLoginMethod(string loginMethod)
+        {
+            return Enum.TryParse(typeof(LoginMethod), loginMethod, true, out _);
         }
     }
 
@@ -64,57 +74,72 @@ public class SignupUser
         return Results.Ok(new TokenResponse(token, rfToken));
     }
 
-    private async Task<User> RegisterAccountAsync(Request userRequest, AccountLoginMethod accountLoginMethod)
+    private async Task<User> RegisterAccountAsync(Request userRequest, Role userRole, LoginMethod loginMethod, AppDbContext context)
     {
-        var account = new AccountDto
+        var user = new User
         {
-            Name = registerAccountRequest.Username,
-            Role = registerAccountRequest.Role,
-            LoginMethod = accountLoginMethod.ToString(),
+            FullName = userRequest.FullName,
+            Email = userRequest.Email,
+            Role = userRole,
+            LoginMethod = loginMethod,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
         };
 
-        if (accountLoginMethod == AccountLoginMethod.NORMAL)
+        if (loginMethod == LoginMethod.Default)
         {
-            account.Status = AccountStatus.PENDING.ToString();
-            account.Password = HashPassword(registerAccountRequest.Password);
+            user.Status = UserStatus.Pending;
+            user.Password = HashPassword(userRequest.Password);
         }
         else
         {
-            account.Status = AccountStatus.ACTIVE.ToString();
+            user.Status = UserStatus.Active;
         }
 
-        var accountMapper = _mapper.Map<Entities.Account.Account>(account);
-
-        if (await _accountRepository.AccountExistsByEmailAndStatus(account.Name, AccountStatus.PENDING))
+        if (await context.Users.AnyAsync(us => us.Email == user.Email && us.Status == UserStatus.Pending))
         {
-            throw ProjectException.NewBuilder()
-                .WithCode(ProjectErrorCode.WEV_0008)
-                .AddReason("account", "Account exists but not verified")
+            throw TechGadgetException.NewBuilder()
+                .WithCode(TechGadgetErrorCode.WES_0000)
+                .AddReason("Lỗi người dùng", "Người dùng chưa xác thực tài khoản")
                 .Build();
         }
 
-        var check = await _accountRepository.GetAccountByName(account.Name);
-        if (check != null)
+        if (await context.Users.AnyAsync(us => us.Email == user.Email && us.Status == UserStatus.Pending))
         {
-            throw ProjectException.NewBuilder()
-                .WithCode(ProjectErrorCode.WEV_0007)
-                .AddReason("email", "This email has been previously registered.")
+            throw TechGadgetException.NewBuilder()
+                .WithCode(TechGadgetErrorCode.WES_0000)
+                .AddReason("Lỗi Email", "Email này đã được đăng ký trước đó.")
                 .Build();
         }
 
-        var createdAccount = await _accountRepository.CreateAccount(accountMapper);
+        context.Users.Add(user);
+        await context.SaveChangesAsync();
 
-        if (createdAccount == null)
+        if (loginMethod == LoginMethod.Default)
         {
-            return null;
+            await SendVerificationCodeAsync(user);
         }
 
-        if (accountLoginMethod == AccountLoginMethod.NORMAL)
-        {
-            await _accountVerificationService.SendVerificationCodeAsync(accountMapper);
-        }
+        return user;
+    }
 
-        return account;
+    private async Task SendVerificationCodeAsync(User user)
+    {
+        var code = VerificationCodeGenerator.Generate();
+
+        var accountVerify = new AccountVerify
+        {
+            VerificationCode = code,
+            Status = VerificationStatus.PENDING,
+            Account = account,
+            CreatedAt = DateTime.UtcNow,
+        };
+
+        await _accountVerifyRepository.CreateAccountVerifyAsync(accountVerify);
+
+        var emailBody = string.Format(EmailBody, account.Id, account.Name, code);
+
+        await _mailService.SendMail(string.Format(EmailTitle, account.Name), account.Name, emailBody);
     }
 
     private static string HashPassword(string password)
