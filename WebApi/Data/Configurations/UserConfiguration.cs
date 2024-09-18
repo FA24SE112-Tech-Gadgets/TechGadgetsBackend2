@@ -13,6 +13,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
         builder.Property(x => x.Status).HasConversion<string>();
         builder.Property(x => x.Role).HasConversion<string>();
+        builder.Property(x => x.LoginMethod).HasConversion<string>();
     }
 }
 
