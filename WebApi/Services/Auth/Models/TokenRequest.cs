@@ -1,8 +1,8 @@
 ﻿using WebApi.Data.Entities;
 
-namespace WebApi.Features.Auth.Models;
+namespace WebApi.Services.Auth.Models;
 
-public class TokenCreateRequest
+public record TokenRequest
 {
     public int Id { get; set; }
     public string FullName { get; set; } = default!;

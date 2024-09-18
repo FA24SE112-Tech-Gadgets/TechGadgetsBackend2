@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Data.Entity;
 using System.Security.Cryptography;
 using WebApi.Common.Endpoints;
 using WebApi.Common.Exceptions;
+using WebApi.Common.Filters;
 using WebApi.Common.Utils;
 using WebApi.Data;
 using WebApi.Data.Entities;
@@ -13,9 +13,10 @@ using WebApi.Services.Mail;
 
 namespace WebApi.Features.Auth;
 
-public class SignupUser
+public static class SignupUser
 {
-    public record Requestt(string FullName, string Password, string Email, string LoginMethod);
+    public record Request(string FullName, string Password, string Email);
+
     private const int SaltSize = 16; // 128 bit 
     private const int KeySize = 32;  // 256 bit
     private const int Iterations = 10000; // Number of PBKDF2 iterations
@@ -39,23 +40,15 @@ public class SignupUser
                 </html>
                 ";
 
-    public sealed class Validator : AbstractValidator<Requestt>
+    public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
             RuleFor(r => r.FullName).NotEmpty();
             RuleFor(r => r.Password).NotEmpty().MinimumLength(8);
             RuleFor(r => r.Email).NotEmpty().EmailAddress();
-            RuleFor(r => r.LoginMethod)
-            .NotEmpty()
-            .Must(BeAValidLoginMethod)
-            .WithMessage("Invalid LoginMethod, must be 'Google' or 'Default'.");
         }
 
-        private bool BeAValidLoginMethod(string loginMethod)
-        {
-            return Enum.TryParse(typeof(LoginMethod), loginMethod, true, out _);
-        }
     }
 
     public sealed class Endpoint : IEndpoint
@@ -63,41 +56,28 @@ public class SignupUser
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
             app.MapPost("auth/signup", Handler)
-            .WithTags("Auths")
+                .WithTags("Auths")
                 .WithDescription("This API is for user signup")
-            .WithSummary("Signup user")
-            .Produces(StatusCodes.Status200OK);
+                .WithSummary("Signup user")
+                .Produces(StatusCodes.Status200OK)
+                .WithRequestValidation<Request>();
         }
     }
 
-    public static async Task<IResult> Handler([FromBody] Requestt request, AppDbContext context, IValidator<Requestt> validator, [FromServices] TokenService tokenService, [FromServices] MailService mailService)
+    public static async Task<IResult> Handler([FromBody] Request request,
+        AppDbContext context, [FromServices] TokenService tokenService, [FromServices] MailService mailService)
     {
-        var validationResult = await validator.ValidateAsync(request);
-
-        if (!validationResult.IsValid)
-        {
-            return Results.BadRequest(validationResult.Errors);
-        }
-
         var user = new User
         {
             FullName = request.FullName,
             Email = request.Email,
             Role = Role.Buyer,
             LoginMethod = LoginMethod.Default,
+            Status = UserStatus.Pending,
+            Password = HashPassword(request.Password),
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };
-
-        if (LoginMethod.Default == LoginMethod.Default)
-        {
-            user.Status = UserStatus.Pending;
-            user.Password = HashPassword(request.Password);
-        }
-        else
-        {
-            user.Status = UserStatus.Active;
-        }
 
         if (await context.Users.AnyAsync(us => us.Email == user.Email && us.Status == UserStatus.Pending))
         {
@@ -107,7 +87,7 @@ public class SignupUser
                 .Build();
         }
 
-        if (await context.Users.AnyAsync(us => us.Email == user.Email && us.Status == UserStatus.Pending))
+        if (await context.Users.AnyAsync(us => us.Email == user.Email && us.Status != UserStatus.Pending))
         {
             throw TechGadgetException.NewBuilder()
                 .WithCode(TechGadgetErrorCode.WES_0000)
@@ -118,26 +98,24 @@ public class SignupUser
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        if (LoginMethod.Default == LoginMethod.Default)
+        var code = VerifyCodeGenerator.Generate();
+
+        var userVerify = new UserVerify
         {
-            var code = VerifyCodeGenerator.Generate();
+            VerifyCode = code,
+            Status = VerifyStatus.Pending,
+            User = user,
+            //CreatedAt = DateTime.UtcNow,
+        };
 
-            var userVerify = new UserVerify
-            {
-                VerifyCode = code,
-                Status = VerifyStatus.Pending,
-                User = user,
-                //CreatedAt = DateTime.UtcNow,
-            };
+        context.UserVerify.Add(userVerify);
+        await context.SaveChangesAsync();
 
-            context.UserVerify.Add(userVerify);
-            await context.SaveChangesAsync();
+        var emailBody = string.Format(EmailBody, user.Id, user.FullName, code);
 
-            var emailBody = string.Format(EmailBody, user.Id, user.FullName, code);
+        await mailService.SendVerifyCode(string.Format(EmailTitle, user.FullName), user.FullName, emailBody);
 
-            await mailService.SendVerifyCode(string.Format(EmailTitle, user.FullName), user.FullName, emailBody);
-        }
-        return Results.Ok();
+        return Results.Created();
     }
 
     private static string HashPassword(string password)

@@ -6,8 +6,8 @@ using System.Security.Claims;
 using System.Text;
 using WebApi.Common.Exceptions;
 using WebApi.Common.Settings;
-using WebApi.Features.Auth.Models;
-using WebApi.Features.Users.Models;
+using WebApi.Services.Auth.Models;
+
 
 namespace WebApi.Services.Auth;
 
@@ -16,13 +16,13 @@ public class TokenService
     private readonly JwtSettings _jwtSettings;
     private readonly SymmetricSecurityKey _key;
 
-    public TokenService (IOptions<JwtSettings> jwtSettings)
+    public TokenService(IOptions<JwtSettings> jwtSettings)
     {
         _jwtSettings = jwtSettings.Value;
         _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.SigningKey));
     }
 
-    public string CreateToken(TokenCreateRequest tokenRequest)
+    public string CreateToken(TokenRequest tokenRequest)
     {
         // Serialize customUserInfo to JSON
         var userInfoJson = JsonConvert.SerializeObject(tokenRequest);
@@ -49,7 +49,7 @@ public class TokenService
         return tokenHandler.WriteToken(token);
     }
 
-    public string CreateRefreshToken(TokenCreateRequest tokenRequest)
+    public string CreateRefreshToken(TokenRequest tokenRequest)
     {
         // Serialize customUserInfo to JSON
         var userInfoJson = JsonConvert.SerializeObject(tokenRequest);
