@@ -1,24 +1,18 @@
 ﻿using MailKit.Net.Smtp;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using Org.BouncyCastle.Utilities;
 using WebApi.Common.Settings;
 
 namespace WebApi.Services.Mail;
 
-public class MailService
+public class MailService(IOptions<MailSettings> mailSettings)
 {
-    private readonly MailSettings _mailSettings;
+    private readonly MailSettings _mailSettings = mailSettings.Value;
 
-    public MailService(IOptions<MailSettings> mailSettings)
-    {
-        _mailSettings = mailSettings.Value;
-    }
-
-    public async Task SendVerifyCode(string subject, string mailTo, string body)
+    public async Task SendMail(string subject, string mailTo, string body)
     {
         var message = new MimeMessage();
-        message.From.Add(new MailboxAddress("Csharp-demo", _mailSettings.Mail));
+        message.From.Add(new MailboxAddress("TechGadgets", _mailSettings.Mail));
         message.To.Add(new MailboxAddress("", mailTo));
         message.Subject = subject;
 
@@ -28,7 +22,7 @@ public class MailService
         };
 
         using var client = new SmtpClient();
-        await client.ConnectAsync(_mailSettings.Host, Int32.Parse(_mailSettings.Port), MailKit.Security.SecureSocketOptions.StartTls);
+        await client.ConnectAsync(_mailSettings.Host, _mailSettings.Port, MailKit.Security.SecureSocketOptions.StartTls);
 
         await client.AuthenticateAsync(_mailSettings.Mail, _mailSettings.Password);
 

@@ -5,23 +5,23 @@ using WebApi.Common.Endpoints;
 using WebApi.Common.Exceptions;
 using WebApi.Common.Filters;
 using WebApi.Data;
-using WebApi.Data.Entities;
 using WebApi.Features.Auth.Mappers;
 using WebApi.Features.Auth.Models;
 using WebApi.Services.Auth;
-
+using WebApi.Services.VerifyCode;
 
 namespace WebApi.Features.Auth;
-public class LoginUser
+
+public class VerifyUser
 {
-    public record Request(string Email, string Password);
+    public record Request(string Email, string Code);
 
     public sealed class Validator : AbstractValidator<Request>
     {
         public Validator()
         {
             RuleFor(r => r.Email).NotEmpty().EmailAddress();
-            RuleFor(r => r.Password).NotEmpty().MinimumLength(8);
+            RuleFor(r => r.Code).NotEmpty();
         }
     }
 
@@ -29,19 +29,19 @@ public class LoginUser
     {
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPost("auth/login", Handler)
+            app.MapPost("auth/verify", Handler)
                 .WithTags("Auths")
-                .WithDescription("This API is for user login")
-                .WithSummary("Login user")
+                .WithDescription("This API is for verify user")
+                .WithSummary("Verify user")
                 .Produces<TokenResponse>(StatusCodes.Status200OK)
                 .WithRequestValidation<Request>();
         }
     }
 
-    public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context, [FromServices] TokenService tokenService)
+    public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context
+        , [FromServices] VerifyCodeService verifyCodeService, [FromServices] TokenService tokenService)
     {
         var user = await context.Users.FirstOrDefaultAsync(user => user.Email == request.Email);
-
         if (user == null)
         {
             throw TechGadgetException.NewBuilder()
@@ -50,17 +50,12 @@ public class LoginUser
                 .Build();
         }
 
-        if (user.Status == UserStatus.Pending)
-        {
-            throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0001)
-                .AddReason("user", "Người dùng chưa xác thực")
-                .Build();
-        }
+        await verifyCodeService.VerifyUserAsync(user, request.Code);
 
         var tokenInfo = user.ToTokenRequest();
         string token = tokenService.CreateToken(tokenInfo!);
         string rfToken = tokenService.CreateRefreshToken(tokenInfo!);
+
         return Results.Ok(new TokenResponse
         {
             Token = token,

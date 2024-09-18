@@ -1,5 +1,6 @@
 ﻿using WebApi.Services.Auth;
 using WebApi.Services.Mail;
+using WebApi.Services.VerifyCode;
 
 namespace WebApi.DependencyInjections;
 
@@ -9,5 +10,6 @@ public static class ServicesDI
     {
         services.AddScoped<TokenService>();
         services.AddScoped<MailService>();
+        services.AddScoped<VerifyCodeService>();
     }
 }
