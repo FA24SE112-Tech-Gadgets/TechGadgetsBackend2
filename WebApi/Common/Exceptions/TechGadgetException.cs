@@ -22,13 +22,13 @@ public class TechGadgetException : Exception
         }
     }
 
-    public TechGadgetErrorCode Code { get; }
+    public TechGadgetErrorCode ErrorCode { get; }
 
     private readonly List<Reason> _reasons;
 
-    public TechGadgetException(Builder builder) : base(builder.Code.Title)
+    public TechGadgetException(Builder builder) : base(builder.ErrorCode.Title)
     {
-        Code = builder.Code;
+        ErrorCode = builder.ErrorCode;
         _reasons = builder.Reasons.ToList();
     }
 
@@ -67,7 +67,7 @@ public class TechGadgetException : Exception
 
     public class Builder
     {
-        public TechGadgetErrorCode Code { get; private set; } = TechGadgetErrorCode.WEB_0000; // Default value
+        public TechGadgetErrorCode ErrorCode { get; private set; } = TechGadgetErrorCode.WEB_0000; // Default value
         public List<Reason> Reasons { get; }
 
         public Builder()
@@ -77,7 +77,7 @@ public class TechGadgetException : Exception
 
         public Builder WithCode(TechGadgetErrorCode code)
         {
-            Code = code;
+            ErrorCode = code;
             return this;
         }
 
@@ -108,7 +108,7 @@ public class TechGadgetException : Exception
 
         public TechGadgetException Build()
         {
-            if (Code == default)
+            if (ErrorCode == default)
             {
                 throw new InvalidOperationException("Error code must be provided");
             }

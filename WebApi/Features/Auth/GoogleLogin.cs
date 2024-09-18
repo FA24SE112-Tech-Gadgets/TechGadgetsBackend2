@@ -6,6 +6,7 @@ using WebApi.Common.Endpoints;
 using WebApi.Common.Exceptions;
 using WebApi.Data;
 using WebApi.Data.Entities;
+using WebApi.Features.Auth.Mappers;
 using WebApi.Features.Auth.Models;
 using WebApi.Services.Auth;
 
@@ -13,16 +14,6 @@ namespace WebApi.Features.Auth;
 
 public class GoogleLogin
 {
-    private class RegisterUserRequest
-    {
-        public string FullName { get; set; } = default!;
-        public string Email { get; set; } = default!;
-        public string? AvatarUrl { get; set; }
-        public Role Role { get; set; }
-        public LoginMethod LoginMethod { get; set; }
-        public UserStatus Status { get; set; }
-    }
-
     public sealed class Endpoint : IEndpoint
     {
         public void MapEndpoint(IEndpointRouteBuilder app)
@@ -57,8 +48,10 @@ public class GoogleLogin
 
                 var ggResponse = JsonConvert.DeserializeObject<LoginGoogleResponse>(responseContent);
                 var user = await context.Users
-                .Where(a => a.Email == ggResponse.Email)
-                .FirstOrDefaultAsync(); ;
+                    .Where(a => a.Email == ggResponse.Email)
+                    .FirstOrDefaultAsync();
+
+                //TH Mail chưa tồn tại
                 if (user == null)
                 {
                     var registerUserRequest = new RegisterUserRequest
@@ -70,19 +63,55 @@ public class GoogleLogin
                         LoginMethod = LoginMethod.Google,
                         Status = UserStatus.Active
                     };
-                    user = await _accountService.RegisterAccountAsync(registerUserRequest, AccountLoginMethod.GOOGLE);
-                    return new TokenResponse
+                    context.Users.Add(registerUserRequest.ToUserRequest());
+                    await context.SaveChangesAsync();
+
+                    user = await context.Users
+                        .Where(a => a.Email == ggResponse.Email)
+                        .FirstOrDefaultAsync();
+
+                    var tokenInfo = user.ToTokenRequest();
+                    string token = tokenService.CreateToken(tokenInfo!);
+                    string rfToken = tokenService.CreateRefreshToken(tokenInfo!);
+                    return Results.Ok(new TokenResponse
                     {
-                        Token = _tokenService.CreateToken(user),
-                        RefreshToken = _tokenService.CreateRefreshToken(user)
-                    };
+                        Token = token,
+                        RefreshToken = rfToken
+                    });
                 }
 
-                return new TokenResponse
+                //TH đăng nhập bằng phương thức GG
+                user = await context.Users
+                    .Where(u => u.Email == ggResponse.Email && u.LoginMethod == LoginMethod.Google)
+                    .FirstOrDefaultAsync();
+                if (user != null)
                 {
-                    Token = _tokenService.CreateToken(user),
-                    RefreshToken = _tokenService.CreateRefreshToken(user)
-                };
+                    var tokenInfo = user.ToTokenRequest();
+                    string token = tokenService.CreateToken(tokenInfo!);
+                    string rfToken = tokenService.CreateRefreshToken(tokenInfo!);
+                    return Results.Ok(new TokenResponse
+                    {
+                        Token = token,
+                        RefreshToken = rfToken
+                    });
+                }
+
+                //TH mail này LoginMethod.Default
+                user = await context.Users
+                    .Where(u => u.Email == ggResponse.Email && u.LoginMethod == LoginMethod.Default)
+                    .FirstOrDefaultAsync();
+                if (user != null)
+                {
+                    throw TechGadgetException.NewBuilder()
+                        .WithCode(TechGadgetErrorCode.WEA_0000)
+                        .AddReason("Sai phương thức đăng nhập", "Người dùng này đã đăng nhập bình thường")
+                        .Build();
+                }
+
+                throw TechGadgetException.NewBuilder()
+                        .WithCode(TechGadgetErrorCode.WEB_0000)
+                        .AddReason("Lỗi lạ không xác định", "Lỗi lạ không xác định")
+                        .Build();
             }
         }
         catch (HttpRequestException ex)
@@ -97,13 +126,6 @@ public class GoogleLogin
             throw TechGadgetException.NewBuilder()
                 .WithCode(TechGadgetErrorCode.WEA_0000)
                 .AddReason("JSON trái phép của Google", ex.Message)
-                .Build();
-        }
-        catch (Exception ex)
-        {
-            throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0000)
-                .AddReason("Ngoại lệ trái phép của Google", ex.Message)
                 .Build();
         }
     }

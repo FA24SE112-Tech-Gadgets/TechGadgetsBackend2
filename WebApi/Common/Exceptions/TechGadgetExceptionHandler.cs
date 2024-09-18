@@ -1,4 +1,6 @@
-﻿namespace WebApi.Common.Exceptions;
+﻿using static Google.Apis.Requests.BatchRequest;
+
+namespace WebApi.Common.Exceptions;
 
 public class TechGadgetExceptionHandler(RequestDelegate next)
 {
@@ -16,14 +18,17 @@ public class TechGadgetExceptionHandler(RequestDelegate next)
 
     private static async Task Handle(Exception ex, HttpContext context)
     {
-        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
-
-        var response = new
+        if (ex is TechGadgetException techGadgetException)
         {
-            Message = "An unexpected error occurred.",
-            Detail = ex.Message
-        };
+            var errorResponse = new TechGadgetErrorResponse
+            {
+                Code = techGadgetException.ErrorCode.Code,
+                Title = techGadgetException.ErrorCode.Title,
+                Reasons = techGadgetException.GetReasons().Select(reason => new Reason(reason.Title, reason.ReasonMessage)).ToList()
+            };
 
-        await context.Response.WriteAsJsonAsync(response);
+            context.Response.StatusCode = (int)techGadgetException.ErrorCode.Status;
+            await context.Response.WriteAsJsonAsync(errorResponse);
+        }
     }
 }

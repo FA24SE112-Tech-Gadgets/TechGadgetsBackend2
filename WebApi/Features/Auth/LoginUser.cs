@@ -20,8 +20,16 @@ public class LoginUser
     {
         public Validator()
         {
-            RuleFor(r => r.Email).NotEmpty().EmailAddress();
-            RuleFor(r => r.Password).NotEmpty().MinimumLength(8);
+            RuleFor(r => r.Email)
+                .NotEmpty()
+                .WithMessage("Email không được để trống")
+                .EmailAddress()
+                .WithMessage("Email không hợp lệ");
+            RuleFor(r => r.Password)
+                .NotEmpty()
+                .WithMessage("Mật khẩu không được để trống")
+                .MinimumLength(8)
+                .WithMessage("Mật khẩu phải có ít nhất 8 ký tự");
         }
     }
 
