@@ -24,7 +24,6 @@ public class TokenMapper
             PhoneNumber = user.PhoneNumber,
             Role = user.Role,
             Status = user.Status,
-            Username = user.Username
         };
     }
 }

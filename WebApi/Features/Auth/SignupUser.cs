@@ -15,7 +15,7 @@ namespace WebApi.Features.Auth;
 
 public class SignupUser
 {
-    public record Request(string FullName, string Password, string Email, string LoginMethod);
+    public record Requestt(string FullName, string Password, string Email, string LoginMethod);
     private const int SaltSize = 16; // 128 bit 
     private const int KeySize = 32;  // 256 bit
     private const int Iterations = 10000; // Number of PBKDF2 iterations
@@ -39,7 +39,7 @@ public class SignupUser
                 </html>
                 ";
 
-    public sealed class Validator : AbstractValidator<Request>
+    public sealed class Validator : AbstractValidator<Requestt>
     {
         public Validator()
         {
@@ -70,7 +70,7 @@ public class SignupUser
         }
     }
 
-    public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context, IValidator<Request> validator, [FromServices] TokenService tokenService, [FromServices] MailService mailService)
+    public static async Task<IResult> Handler([FromBody] Requestt request, AppDbContext context, IValidator<Requestt> validator, [FromServices] TokenService tokenService, [FromServices] MailService mailService)
     {
         var validationResult = await validator.ValidateAsync(request);
 
@@ -127,7 +127,7 @@ public class SignupUser
                 VerifyCode = code,
                 Status = VerifyStatus.Pending,
                 User = user,
-                CreatedAt = DateTime.UtcNow,
+                //CreatedAt = DateTime.UtcNow,
             };
 
             context.UserVerify.Add(userVerify);
