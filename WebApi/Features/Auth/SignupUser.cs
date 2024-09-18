@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Data.Entity;
 using System.Security.Cryptography;
 using WebApi.Common.Endpoints;
 using WebApi.Common.Exceptions;
@@ -10,6 +11,7 @@ using WebApi.Data.Entities;
 using WebApi.Features.Auth.Mappers;
 using WebApi.Features.Auth.Models;
 using WebApi.Services.Auth;
+using WebApi.Services.Mail;
 
 namespace WebApi.Features.Auth;
 
@@ -19,6 +21,25 @@ public class SignupUser
     private const int SaltSize = 16; // 128 bit 
     private const int KeySize = 32;  // 256 bit
     private const int Iterations = 10000; // Number of PBKDF2 iterations
+    private static readonly string EmailTitle = @"Xác thực tài khoản - {0}";
+    private static readonly string EmailBody = @"
+                <html>
+                    <body>
+                        <p>Chào mừng bạn đến với Tech Gadget VN!</p>
+                        <br />
+                        <p>Hãy lướt qua lại một vài thông tin cơ bản nhé:</p>
+                        <ul>
+                            <li>ID: {0}</li>
+                            <li>Email: {1}</li>
+                        </ul>
+                        <br />
+                        <p>Để tiếp tục trải nghiệm mọi thứ mà ứng dụng chúng tôi cung cấp, mời bạn nhập mã xác thực sau đây vào
+                        ứng dụng của chúng tôi:</p>
+                        <br />
+                        <p><strong>Mã xác thực: {2}</strong></p>
+                    </body>
+                </html>
+                ";
 
     public sealed class Validator : AbstractValidator<Request>
     {
@@ -74,7 +95,7 @@ public class SignupUser
         return Results.Ok(new TokenResponse(token, rfToken));
     }
 
-    private async Task<User> RegisterAccountAsync(Request userRequest, Role userRole, LoginMethod loginMethod, AppDbContext context)
+    private async Task<User> RegisterAccountAsync(Request userRequest, Role userRole, LoginMethod loginMethod, AppDbContext context, [FromServices] MailService mailService)
     {
         var user = new User
         {
@@ -117,29 +138,30 @@ public class SignupUser
 
         if (loginMethod == LoginMethod.Default)
         {
-            await SendVerificationCodeAsync(user);
+            await SendVerifyCodeAsync(user, context, mailService);
         }
 
         return user;
     }
 
-    private async Task SendVerificationCodeAsync(User user)
+    private async Task SendVerifyCodeAsync(User user, AppDbContext context, MailService mailService)
     {
-        var code = VerificationCodeGenerator.Generate();
+        var code = VerifyCodeGenerator.Generate();
 
-        var accountVerify = new AccountVerify
+        var userVerify = new UserVerify
         {
-            VerificationCode = code,
-            Status = VerificationStatus.PENDING,
-            Account = account,
+            VerifyCode = code,
+            Status = VerifyStatus.Pending,
+            User = user,
             CreatedAt = DateTime.UtcNow,
         };
 
-        await _accountVerifyRepository.CreateAccountVerifyAsync(accountVerify);
+        context.UserVerify.Add(userVerify);
+        await context.SaveChangesAsync();
 
-        var emailBody = string.Format(EmailBody, account.Id, account.Name, code);
+        var emailBody = string.Format(EmailBody, user.Id, user.FullName, code);
 
-        await _mailService.SendMail(string.Format(EmailTitle, account.Name), account.Name, emailBody);
+        await mailService.SendVerifyCode(string.Format(EmailTitle, user.FullName), user.FullName, emailBody);
     }
 
     private static string HashPassword(string password)
