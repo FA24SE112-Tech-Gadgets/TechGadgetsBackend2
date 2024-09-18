@@ -27,6 +27,7 @@ public class User
     public ICollection<Order> Orders { get; set; } = [];
     public ICollection<SellerApplication> SellerApplications { get; set; } = [];
     public ICollection<VoucherUser> VoucherUsers { get; set; } = [];
+    public ICollection<UserVerify> UserVerify { get; set; } = [];
 }
 
 public enum LoginMethod
