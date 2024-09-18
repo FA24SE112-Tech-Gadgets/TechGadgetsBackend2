@@ -8,8 +8,6 @@ using WebApi.Common.Exceptions;
 using WebApi.Common.Utils;
 using WebApi.Data;
 using WebApi.Data.Entities;
-using WebApi.Features.Auth.Mappers;
-using WebApi.Features.Auth.Models;
 using WebApi.Services.Auth;
 using WebApi.Services.Mail;
 
@@ -68,11 +66,11 @@ public class SignupUser
             .WithTags("Auths")
                 .WithDescription("This API is for user signup")
             .WithSummary("Signup user")
-            .Produces<TokenResponse>(StatusCodes.Status200OK);
+            .Produces(StatusCodes.Status200OK);
         }
     }
 
-    public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context, IValidator<Request> validator, [FromServices] TokenService tokenService)
+    public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context, IValidator<Request> validator, [FromServices] TokenService tokenService, [FromServices] MailService mailService)
     {
         var validationResult = await validator.ValidateAsync(request);
 
@@ -81,36 +79,20 @@ public class SignupUser
             return Results.BadRequest(validationResult.Errors);
         }
 
-        bool isExist = await context.Users.AnyAsync(user => user.Email == request.Email);
-        if (isExist)
-        {
-            throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
-                .AddReason("Lỗi đăng ký tài khoản", "Email đã tồn tại")
-                .Build();
-        }
-        var tokenInfo = TokenMapper.MapToTokenCreateRequest(user);
-        string token = tokenService.CreateToken(tokenInfo);
-        string rfToken = tokenService.CreateRefreshToken(tokenInfo);
-        return Results.Ok(new TokenResponse(token, rfToken));
-    }
-
-    private async Task<User> RegisterAccountAsync(Request userRequest, Role userRole, LoginMethod loginMethod, AppDbContext context, [FromServices] MailService mailService)
-    {
         var user = new User
         {
-            FullName = userRequest.FullName,
-            Email = userRequest.Email,
-            Role = userRole,
-            LoginMethod = loginMethod,
+            FullName = request.FullName,
+            Email = request.Email,
+            Role = Role.Buyer,
+            LoginMethod = LoginMethod.Default,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
         };
 
-        if (loginMethod == LoginMethod.Default)
+        if (LoginMethod.Default == LoginMethod.Default)
         {
             user.Status = UserStatus.Pending;
-            user.Password = HashPassword(userRequest.Password);
+            user.Password = HashPassword(request.Password);
         }
         else
         {
@@ -136,32 +118,26 @@ public class SignupUser
         context.Users.Add(user);
         await context.SaveChangesAsync();
 
-        if (loginMethod == LoginMethod.Default)
+        if (LoginMethod.Default == LoginMethod.Default)
         {
-            await SendVerifyCodeAsync(user, context, mailService);
+            var code = VerifyCodeGenerator.Generate();
+
+            var userVerify = new UserVerify
+            {
+                VerifyCode = code,
+                Status = VerifyStatus.Pending,
+                User = user,
+                CreatedAt = DateTime.UtcNow,
+            };
+
+            context.UserVerify.Add(userVerify);
+            await context.SaveChangesAsync();
+
+            var emailBody = string.Format(EmailBody, user.Id, user.FullName, code);
+
+            await mailService.SendVerifyCode(string.Format(EmailTitle, user.FullName), user.FullName, emailBody);
         }
-
-        return user;
-    }
-
-    private async Task SendVerifyCodeAsync(User user, AppDbContext context, MailService mailService)
-    {
-        var code = VerifyCodeGenerator.Generate();
-
-        var userVerify = new UserVerify
-        {
-            VerifyCode = code,
-            Status = VerifyStatus.Pending,
-            User = user,
-            CreatedAt = DateTime.UtcNow,
-        };
-
-        context.UserVerify.Add(userVerify);
-        await context.SaveChangesAsync();
-
-        var emailBody = string.Format(EmailBody, user.Id, user.FullName, code);
-
-        await mailService.SendVerifyCode(string.Format(EmailTitle, user.FullName), user.FullName, emailBody);
+        return Results.Ok();
     }
 
     private static string HashPassword(string password)
