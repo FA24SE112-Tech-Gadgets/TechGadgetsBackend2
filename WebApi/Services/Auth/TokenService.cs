@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -18,7 +19,7 @@ public class TokenService(IOptions<JwtSettings> jwtSettings)
 
     public string CreateToken(TokenRequest tokenRequest)
     {
-        var userInfoJson = JsonConvert.SerializeObject(tokenRequest);
+        var userInfoJson = JsonConvert.SerializeObject(tokenRequest, new StringEnumConverter());
 
         var claims = new List<Claim>
         {
@@ -43,7 +44,7 @@ public class TokenService(IOptions<JwtSettings> jwtSettings)
 
     public string CreateRefreshToken(TokenRequest tokenRequest)
     {
-        var userInfoJson = JsonConvert.SerializeObject(tokenRequest);
+        var userInfoJson = JsonConvert.SerializeObject(tokenRequest, new StringEnumConverter());
 
         var claims = new List<Claim>
         {

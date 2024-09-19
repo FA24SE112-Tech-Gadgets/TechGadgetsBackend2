@@ -1,19 +1,23 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 using WebApi.Common.Exceptions;
 using WebApi.Common.Settings;
+using WebApi.Data;
 using WebApi.Data.Entities;
+using WebApi.Services.Auth.Models;
 
-namespace WebApi.Services;
+namespace WebApi.Services.Auth;
 
-public class CurrentUserService(IHttpContextAccessor httpContextAccessor, IOptions<JwtSettings> jwtSettings)
+public class CurrentUserService(IHttpContextAccessor httpContextAccessor, IOptions<JwtSettings> jwtSettings, AppDbContext context)
 {
     private readonly JwtSettings _jwtSettings = jwtSettings.Value;
     private readonly SymmetricSecurityKey _key = new(Encoding.UTF8.GetBytes(jwtSettings.Value.SigningKey));
 
-    public User GetCurrentUser()
+    public async Task<User?> GetCurrentUser()
     {
         var request = httpContextAccessor.HttpContext?.Request;
         var authHeader = request?.Headers.Authorization.ToString();
@@ -54,6 +58,23 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor, IOptio
             .AddReason("Lỗi xác thực", "Thiếu thông tin xác thực trong mã Token.")
             .Build();
 
+        var userInfo = JsonConvert.DeserializeObject<TokenRequest>(userInfoJson);
 
+        return await context.Users.FirstOrDefaultAsync(x => x.Id == userInfo!.Id);
+    }
+
+    public async Task<int> GetCurrentUserId()
+    {
+        var user = await GetCurrentUser();
+
+        if (user == null)
+        {
+            throw TechGadgetException.NewBuilder()
+                .WithCode(TechGadgetErrorCode.WEA_0000)
+                .AddReason("Lỗi xác thực", "Người dùng không tồn tại.")
+                .Build();
+        }
+
+        return user.Id;
     }
 }

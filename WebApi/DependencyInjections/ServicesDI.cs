@@ -11,5 +11,6 @@ public static class ServicesDI
         services.AddScoped<TokenService>();
         services.AddScoped<MailService>();
         services.AddScoped<VerifyCodeService>();
+        services.AddScoped<CurrentUserService>();
     }
 }
