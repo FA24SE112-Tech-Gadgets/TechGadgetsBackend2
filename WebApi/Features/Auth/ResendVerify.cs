@@ -41,7 +41,7 @@ public class ResendVerify
         {
             throw TechGadgetException.NewBuilder()
                 .WithCode(TechGadgetErrorCode.WEV_0000)
-                .AddReason("user", "Người dùng không tồn tại")
+                .AddReason("Lỗi người dùng", "Người dùng không tồn tại")
                 .Build();
         }
 
