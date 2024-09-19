@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using System.IdentityModel.Tokens.Jwt;
@@ -6,6 +7,9 @@ using System.Security.Claims;
 using System.Text;
 using WebApi.Common.Exceptions;
 using WebApi.Common.Settings;
+using WebApi.Data;
+using WebApi.Data.Entities;
+using WebApi.Features.Auth.Mappers;
 using WebApi.Services.Auth.Models;
 
 
@@ -132,10 +136,9 @@ public class TokenService
         }
     }
 
-    public bool ValidateRefreshToken(HttpRequest request)
+    public async Task<User?> ValidateRefreshToken(string token, AppDbContext context)
     {
-        var token = request?.Headers.Authorization.ToString().Replace("Bearer ", "");
-        if (string.IsNullOrEmpty(token))
+        if (token.IsNullOrEmpty())
         {
             throw TechGadgetException.NewBuilder()
                 .WithCode(TechGadgetErrorCode.WEA_0000)
@@ -160,9 +163,9 @@ public class TokenService
             var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
             // Extract the UserInfo claim
-            var accountInfoJson = principal.Claims.FirstOrDefault(c => c.Type == "UserInfo")?.Value;
+            var userInfoJson = principal.Claims.FirstOrDefault(c => c.Type == "UserInfo")?.Value;
 
-            if (string.IsNullOrEmpty(accountInfoJson))
+            if (string.IsNullOrEmpty(userInfoJson))
                 throw TechGadgetException.NewBuilder()
                 .WithCode(TechGadgetErrorCode.WEA_0000)
                 .AddReason("Lỗi xác thực", "Không có thông tin người dùng trong mã Token.")
@@ -176,7 +179,11 @@ public class TokenService
                 .AddReason("Lỗi xác thực", "Thiếu thông tin xác thực trong mã Token.")
                 .Build();
 
-            return true;
+            // Deserialize the custom user info object
+            var tokenInfo = JsonConvert.DeserializeObject<TokenRequest>(userInfoJson);
+            var userInfo = tokenInfo.ToUser();
+            
+            return await context.Users.FirstOrDefaultAsync(u => u.Id == userInfo.Id);
         }
         catch (Exception ex)
         {
