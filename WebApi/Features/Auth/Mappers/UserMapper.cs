@@ -3,7 +3,7 @@ using WebApi.Services.Auth.Models;
 
 namespace WebApi.Features.Auth.Mappers;
 
-public static class TokenMapper
+public static class UserMapper
 {
     public static TokenRequest? ToTokenRequest(this User? user)
     {

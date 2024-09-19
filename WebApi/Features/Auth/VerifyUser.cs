@@ -20,8 +20,14 @@ public class VerifyUser
     {
         public Validator()
         {
-            RuleFor(r => r.Email).NotEmpty().EmailAddress();
-            RuleFor(r => r.Code).NotEmpty();
+            RuleFor(r => r.Email)
+                .NotEmpty()
+                .WithMessage("Email không được để trống")
+                .EmailAddress()
+                .WithMessage("Email không hợp lệ");
+            RuleFor(r => r.Code)
+                .NotEmpty()
+                .WithMessage("Mã xác thực không được để trống");
         }
     }
 
@@ -46,7 +52,7 @@ public class VerifyUser
         {
             throw TechGadgetException.NewBuilder()
                 .WithCode(TechGadgetErrorCode.WEV_0000)
-                .AddReason("user", "Người dùng không tồn tại")
+                .AddReason("Lỗi người dùng", "Người dùng không tồn tại")
                 .Build();
         }
 
