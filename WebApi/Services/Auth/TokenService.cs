@@ -1,37 +1,34 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using WebApi.Common.Exceptions;
 using WebApi.Common.Settings;
+using WebApi.Data;
+using WebApi.Data.Entities;
+using WebApi.Features.Auth.Mappers;
 using WebApi.Services.Auth.Models;
 
 
 namespace WebApi.Services.Auth;
 
-public class TokenService
+public class TokenService(IOptions<JwtSettings> jwtSettings)
 {
-    private readonly JwtSettings _jwtSettings;
-    private readonly SymmetricSecurityKey _key;
-
-    public TokenService(IOptions<JwtSettings> jwtSettings)
-    {
-        _jwtSettings = jwtSettings.Value;
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.SigningKey));
-    }
+    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    private readonly SymmetricSecurityKey _key = new(Encoding.UTF8.GetBytes(jwtSettings.Value.SigningKey));
 
     public string CreateToken(TokenRequest tokenRequest)
     {
-        // Serialize customUserInfo to JSON
-        var userInfoJson = JsonConvert.SerializeObject(tokenRequest);
+        var userInfoJson = JsonConvert.SerializeObject(tokenRequest, new StringEnumConverter());
 
-        // Create the JWT payload
         var claims = new List<Claim>
         {
-            new Claim("UserInfo", userInfoJson),
-            new Claim("TokenClaim", "ForVerifyOnly")
+            new("UserInfo", userInfoJson),
+            new("TokenClaim", "ForVerifyOnly")
         };
 
         var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256Signature);
@@ -51,14 +48,12 @@ public class TokenService
 
     public string CreateRefreshToken(TokenRequest tokenRequest)
     {
-        // Serialize customUserInfo to JSON
-        var userInfoJson = JsonConvert.SerializeObject(tokenRequest);
+        var userInfoJson = JsonConvert.SerializeObject(tokenRequest, new StringEnumConverter());
 
-        // Create the JWT payload
         var claims = new List<Claim>
         {
-            new Claim("UserInfo", userInfoJson),
-            new Claim("RFTokenClaim", "ForVerifyOnly")
+            new("UserInfo", userInfoJson),
+            new("RFTokenClaim", "ForVerifyOnly")
         };
 
         var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256Signature);
@@ -132,10 +127,9 @@ public class TokenService
         }
     }
 
-    public bool ValidateRefreshToken(HttpRequest request)
+    public async Task<User?> ValidateRefreshToken(string token, AppDbContext context)
     {
-        var token = request?.Headers.Authorization.ToString().Replace("Bearer ", "");
-        if (string.IsNullOrEmpty(token))
+        if (token.IsNullOrEmpty())
         {
             throw TechGadgetException.NewBuilder()
                 .WithCode(TechGadgetErrorCode.WEA_0000)
@@ -160,9 +154,9 @@ public class TokenService
             var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
             // Extract the UserInfo claim
-            var accountInfoJson = principal.Claims.FirstOrDefault(c => c.Type == "UserInfo")?.Value;
+            var userInfoJson = principal.Claims.FirstOrDefault(c => c.Type == "UserInfo")?.Value;
 
-            if (string.IsNullOrEmpty(accountInfoJson))
+            if (string.IsNullOrEmpty(userInfoJson))
                 throw TechGadgetException.NewBuilder()
                 .WithCode(TechGadgetErrorCode.WEA_0000)
                 .AddReason("Lỗi xác thực", "Không có thông tin người dùng trong mã Token.")
@@ -176,7 +170,11 @@ public class TokenService
                 .AddReason("Lỗi xác thực", "Thiếu thông tin xác thực trong mã Token.")
                 .Build();
 
-            return true;
+            // Deserialize the custom user info object
+            var tokenInfo = JsonConvert.DeserializeObject<TokenRequest>(userInfoJson);
+            var userInfo = tokenInfo.ToUser();
+            
+            return await context.Users.FirstOrDefaultAsync(u => u.Id == userInfo.Id);
         }
         catch (Exception ex)
         {
