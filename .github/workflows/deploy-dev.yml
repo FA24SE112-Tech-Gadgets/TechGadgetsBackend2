@@ -1,0 +1,61 @@
+name: Deploy Dev
+
+on:
+  push:
+    branches: ["dev"]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build Docker image and push
+        run: docker buildx build . --file WebApi/Dockerfile --tag techgadget/techgadget-dev --push
+
+      - name: Setup SSH Keys
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Deploy to EC2 part 1 (Pull images and remove existed containers, images)
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_IP_DEV }} << EOF
+            sudo docker pull rabbitmq:3-management
+            sudo docker stop test-rabbit || true
+            sudo docker rm test-rabbit || true
+            sudo docker image prune -f
+            sudo docker run -d --hostname mytest-rabbit --name test-rabbit -e RABBITMQ_DEFAULT_USER=${{ secrets.RABBITMQ_USER }} -e RABBITMQ_DEFAULT_PASS=${{ secrets.RABBITMQ_PASS }} -p 5672:5672 -p 15672:15672 -p 15674:15674 -p 1883:1883 -v /etc/rabbitmq/rabbitmq-config-custom.conf:/etc/rabbitmq/rabbitmq.conf rabbitmq:3-management
+          EOF
+
+      - name: Deploy to EC2 part 2 (Enable RabbitMQ Plugin)
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_IP_DEV }} << EOF
+            sudo docker exec -i test-rabbit rabbitmq-plugins enable rabbitmq_stomp rabbitmq_web_stomp rabbitmq_management rabbitmq_web_dispatch
+          EOF
+
+      - name: Deploy to EC2 part 3 (Restart RabbitMQ)
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_IP_DEV }} << EOF
+            sudo docker restart test-rabbit
+          EOF
+
+      - name: Deploy to EC2 part 4 (Deploy Server)
+        run: |
+          ssh -o StrictHostKeyChecking=no ec2-user@${{ secrets.EC2_IP_DEV }} << EOF
+            sudo docker pull techgadget/techgadget-dev
+            sudo docker stop techgadget-dev || true
+            sudo docker rm techgadget-dev || true
+            sudo docker run -e ASPNETCORE_ENVIRONMENT=Development -d --hostname host-techgadget-dev --name techgadget-dev -p 5000:8080 techgadget/techgadget-dev
+          EOF
