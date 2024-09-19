@@ -26,11 +26,7 @@ app.UseCorsPolicy();
 app.UseOpenApi();
 app.UseTechGadgetsExceptionHandler();
 app.ApplyMigrations();
-
-//if (app.Environment.EnvironmentName == "Local")
-//{
-//    app.UseDeveloperExceptionPage();
-//}
+app.UseExceptionPageInLocal();
 
 app.MapEndpoints();
 

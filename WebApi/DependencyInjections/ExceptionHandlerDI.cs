@@ -4,8 +4,8 @@ namespace WebApi.DependencyInjections;
 
 public static class ExceptionHandlerDI
 {
-    public static void UseTechGadgetsExceptionHandler(this IApplicationBuilder builder)
+    public static void UseTechGadgetsExceptionHandler(this IApplicationBuilder app)
     {
-        builder.UseMiddleware<TechGadgetExceptionHandler>();
+        app.UseMiddleware<TechGadgetExceptionHandler>();
     }
 }
