@@ -1,0 +1,78 @@
+﻿using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using WebApi.Common.Endpoints;
+using WebApi.Common.Exceptions;
+using WebApi.Common.Filters;
+using WebApi.Data;
+using WebApi.Data.Entities;
+using WebApi.Features.Auth.Mappers;
+using WebApi.Features.Auth.Models;
+using WebApi.Services.Auth;
+
+
+namespace WebApi.Features.Auth;
+public class LoginUser
+{
+    public record Request(string Email, string Password);
+
+    public sealed class Validator : AbstractValidator<Request>
+    {
+        public Validator()
+        {
+            RuleFor(r => r.Email)
+                .NotEmpty()
+                .WithMessage("Email không được để trống")
+                .EmailAddress()
+                .WithMessage("Email không hợp lệ");
+            RuleFor(r => r.Password)
+                .NotEmpty()
+                .WithMessage("Mật khẩu không được để trống")
+                .MinimumLength(8)
+                .WithMessage("Mật khẩu phải có ít nhất 8 ký tự");
+        }
+    }
+
+    public sealed class Endpoint : IEndpoint
+    {
+        public void MapEndpoint(IEndpointRouteBuilder app)
+        {
+            app.MapPost("auth/login", Handler)
+                .WithTags("Auths")
+                .WithDescription("This API is for user login")
+                .WithSummary("Login user")
+                .Produces<TokenResponse>(StatusCodes.Status200OK)
+                .WithRequestValidation<Request>();
+        }
+    }
+
+    public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context, [FromServices] TokenService tokenService)
+    {
+        var user = await context.Users.FirstOrDefaultAsync(user => user.Email == request.Email);
+
+        if (user == null)
+        {
+            throw TechGadgetException.NewBuilder()
+                .WithCode(TechGadgetErrorCode.WEV_0000)
+                .AddReason("user", "Người dùng không tồn tại")
+                .Build();
+        }
+
+        if (user.Status == UserStatus.Pending)
+        {
+            throw TechGadgetException.NewBuilder()
+                .WithCode(TechGadgetErrorCode.WEA_0001)
+                .AddReason("user", "Người dùng chưa xác thực")
+                .Build();
+        }
+
+        var tokenInfo = user.ToTokenRequest();
+        string token = tokenService.CreateToken(tokenInfo!);
+        string rfToken = tokenService.CreateRefreshToken(tokenInfo!);
+        return Results.Ok(new TokenResponse
+        {
+            Token = token,
+            RefreshToken = rfToken
+        });
+    }
+}

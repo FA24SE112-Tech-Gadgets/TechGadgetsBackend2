@@ -18,6 +18,7 @@ builder.Services.AddServices();
 builder.Services.AddConfigureSettings(builder.Configuration);
 builder.Services.AddDbContextConfiguration(builder.Configuration);
 builder.Services.AddOpenApi();
+builder.Services.AddThrowOnBadRequest();
 
 var app = builder.Build();
 
@@ -25,6 +26,7 @@ app.UseCorsPolicy();
 app.UseOpenApi();
 app.UseTechGadgetsExceptionHandler();
 app.ApplyMigrations();
+app.UseExceptionPageInLocal();
 
 app.MapEndpoints();
 
