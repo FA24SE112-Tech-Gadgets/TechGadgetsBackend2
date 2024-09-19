@@ -15,6 +15,7 @@ builder.Services.AddJsonOptions();
 builder.Services.AddEndpoints();
 builder.Services.AddCorsPolicy();
 builder.Services.AddServices();
+builder.Services.AddBackgroundServices();
 builder.Services.AddConfigureSettings(builder.Configuration);
 builder.Services.AddDbContextConfiguration(builder.Configuration);
 builder.Services.AddOpenApi();
