@@ -2,7 +2,7 @@
 
 namespace WebApi.Features.Users.Models;
 
-public class UserInfo
+public class UserResponse
 {
     public int Id { get; set; }
     public string FullName { get; set; } = default!;

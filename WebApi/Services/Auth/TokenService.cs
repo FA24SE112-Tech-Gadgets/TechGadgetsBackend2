@@ -11,27 +11,19 @@ using WebApi.Services.Auth.Models;
 
 namespace WebApi.Services.Auth;
 
-public class TokenService
+public class TokenService(IOptions<JwtSettings> jwtSettings)
 {
-    private readonly JwtSettings _jwtSettings;
-    private readonly SymmetricSecurityKey _key;
-
-    public TokenService(IOptions<JwtSettings> jwtSettings)
-    {
-        _jwtSettings = jwtSettings.Value;
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Value.SigningKey));
-    }
+    private readonly JwtSettings _jwtSettings = jwtSettings.Value;
+    private readonly SymmetricSecurityKey _key = new(Encoding.UTF8.GetBytes(jwtSettings.Value.SigningKey));
 
     public string CreateToken(TokenRequest tokenRequest)
     {
-        // Serialize customUserInfo to JSON
         var userInfoJson = JsonConvert.SerializeObject(tokenRequest);
 
-        // Create the JWT payload
         var claims = new List<Claim>
         {
-            new Claim("UserInfo", userInfoJson),
-            new Claim("TokenClaim", "ForVerifyOnly")
+            new("UserInfo", userInfoJson),
+            new("TokenClaim", "ForVerifyOnly")
         };
 
         var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256Signature);
@@ -51,14 +43,12 @@ public class TokenService
 
     public string CreateRefreshToken(TokenRequest tokenRequest)
     {
-        // Serialize customUserInfo to JSON
         var userInfoJson = JsonConvert.SerializeObject(tokenRequest);
 
-        // Create the JWT payload
         var claims = new List<Claim>
         {
-            new Claim("UserInfo", userInfoJson),
-            new Claim("RFTokenClaim", "ForVerifyOnly")
+            new("UserInfo", userInfoJson),
+            new("RFTokenClaim", "ForVerifyOnly")
         };
 
         var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha256Signature);

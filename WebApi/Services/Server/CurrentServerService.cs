@@ -5,5 +5,5 @@ public class CurrentServerService(IHttpContextAccessor httpContextAccessor)
     public string ServerUrl
         => string.Concat(httpContextAccessor?.HttpContext?.Request.Scheme, "://",
             httpContextAccessor?.HttpContext?.Request.Host.ToUriComponent())
-        ?? throw new Exception("Not have url server");
+        ?? throw new Exception("Không tồn tại url server");
 }
