@@ -28,6 +28,6 @@ app.UseTechGadgetsExceptionHandler();
 app.ApplyMigrations();
 app.UseExceptionPageInLocal();
 
-app.MapEndpoints();
+app.MapEndpoints(app.MapGroup("api"));
 
 app.Run();
