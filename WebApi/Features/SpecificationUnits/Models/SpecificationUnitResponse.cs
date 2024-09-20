@@ -1,4 +1,4 @@
-﻿namespace WebApi.Features.Specification.Models;
+﻿namespace WebApi.Features.SpecificationUnits.Models;
 
 public class SpecificationUnitResponse
 {
