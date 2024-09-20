@@ -14,7 +14,11 @@ namespace WebApi.Features.Brands;
 
 public class CreateBrand
 {
-    public record Request(string Name, IFormFile Logo);
+    public class Request
+    {
+        public string Name { get; set; } = default!;
+        public IFormFile Logo { get; set; } = default!;
+    }
 
     public sealed class Validator : AbstractValidator<Request>
     {
