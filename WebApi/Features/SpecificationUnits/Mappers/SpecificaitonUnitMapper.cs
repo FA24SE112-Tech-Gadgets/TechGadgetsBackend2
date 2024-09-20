@@ -1,7 +1,7 @@
 ﻿using WebApi.Data.Entities;
-using WebApi.Features.Specification.Models;
+using WebApi.Features.SpecificationUnits.Models;
 
-namespace WebApi.Features.Specification.Mappers;
+namespace WebApi.Features.SpecificationUnits.Mappers;
 
 public static class SpecificaitonUnitMapper
 {

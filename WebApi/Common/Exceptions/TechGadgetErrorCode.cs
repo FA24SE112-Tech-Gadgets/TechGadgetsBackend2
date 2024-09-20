@@ -30,6 +30,7 @@ public class TechGadgetErrorCode
     public static readonly TechGadgetErrorCode WEB_0002 = new("WEB_0002", "Nhà hàng không tồn tại", HttpStatusCode.BadRequest);
     public static readonly TechGadgetErrorCode WEB_0003 = new("WEB_0003", "Invalid restaurant status", HttpStatusCode.BadRequest);
     public static readonly TechGadgetErrorCode WEB_0004 = new("WEB_0004", "Tên của món ăn đã bị trùng", HttpStatusCode.BadRequest);
+    public static readonly TechGadgetErrorCode WEB_0005 = new("WEB_0005", "Lỗi không tồn tại", HttpStatusCode.BadRequest);
     public static readonly TechGadgetErrorCode WEV_0000 = new("WEV_0000", "Người dùng không tồn tại", HttpStatusCode.BadRequest);
     public static readonly TechGadgetErrorCode WES_0000 = new("WES_0000", "Lỗi đăng ký tài khoản", HttpStatusCode.BadRequest);
     public static readonly TechGadgetErrorCode WEA_0000 = new("WEA_0000", "Lỗi xác thực", HttpStatusCode.Unauthorized);
