@@ -35,7 +35,7 @@ public class CreateSpecificationUnit
                 .Produces<SpecificationUnitResponse>(StatusCodes.Status200OK)
                 .WithJwtValidation()
                 .WithRequestValidation<Request>()
-                .WithRolesValidation(Role.Admin, Role.Buyer);
+                .WithRolesValidation(Role.Admin, Role.Seller);
         }
     }
 
