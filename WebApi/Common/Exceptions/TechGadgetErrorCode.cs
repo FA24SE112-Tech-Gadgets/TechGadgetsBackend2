@@ -25,14 +25,12 @@ public class TechGadgetErrorCode
         Status = status;
     }
 
-    public static readonly TechGadgetErrorCode WEB_0000 = new("WEB_0000", "Lỗi lạ không xác định", HttpStatusCode.BadRequest);
-    public static readonly TechGadgetErrorCode WEB_0001 = new("WEB_0001", "Lỗi đăng ký tài khoản", HttpStatusCode.BadRequest);
-    public static readonly TechGadgetErrorCode WEB_0002 = new("WEB_0002", "Người dùng không tồn tại", HttpStatusCode.BadRequest);
-    public static readonly TechGadgetErrorCode WEB_0003 = new("WEB_0003", "Tên của thương hiệu đã tồn tại", HttpStatusCode.BadRequest);
+    public static readonly TechGadgetErrorCode WEB_00 = new("WEB_00", "Không tồn tại", HttpStatusCode.BadRequest);
+    public static readonly TechGadgetErrorCode WEB_01 = new("WEB_01", "Đã tồn tại", HttpStatusCode.BadRequest);
 
-    public static readonly TechGadgetErrorCode WES_0000 = new("WES_0000", "Lỗi server", HttpStatusCode.InternalServerError);
-    public static readonly TechGadgetErrorCode WES_0001 = new("WES_0001", "Lỗi trong việc tạo logo của thương hiệu", HttpStatusCode.InternalServerError);
+    public static readonly TechGadgetErrorCode WEV_00 = new("WEV_00", "Lỗi cú pháp", HttpStatusCode.BadRequest);
 
-    public static readonly TechGadgetErrorCode WEA_0000 = new("WEA_0000", "Lỗi xác thực", HttpStatusCode.Unauthorized);
-    public static readonly TechGadgetErrorCode WEA_0001 = new("WEA_0001", "Người dùng chưa xác thực", HttpStatusCode.Unauthorized);
+    public static readonly TechGadgetErrorCode WES_00 = new("WES_00", "Lỗi server", HttpStatusCode.InternalServerError);
+
+    public static readonly TechGadgetErrorCode WEA_00 = new("WEA_00", "Lỗi xác thực", HttpStatusCode.Unauthorized);
 }
