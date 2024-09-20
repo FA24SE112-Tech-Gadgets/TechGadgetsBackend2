@@ -17,17 +17,4 @@ public static class SpecificaitonUnitMapper
         }
         return null;
     }
-
-    public static List<SpecificationUnitResponse>? ToListSpecificationUnitsResponse(this List<SpecificationUnit> specificationUnits)
-    {
-        if (specificationUnits != null)
-        {
-            return specificationUnits.Select(unit => new SpecificationUnitResponse
-            {
-                Id = unit.Id,
-                Name = unit.Name
-            }).ToList();
-        }
-        return null;
-    }
 }
