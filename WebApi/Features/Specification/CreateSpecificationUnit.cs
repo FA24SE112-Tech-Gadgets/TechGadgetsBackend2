@@ -1,13 +1,11 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebApi.Common.Endpoints;
-using WebApi.Common.Exceptions;
 using WebApi.Common.Filters;
 using WebApi.Data;
 using WebApi.Data.Entities;
-using WebApi.Features.Auth.Mappers;
-using WebApi.Features.Auth.Models;
+using WebApi.Features.Specification.Mappers;
+using WebApi.Features.Specification.Models;
 using WebApi.Services.Auth;
 
 namespace WebApi.Features.Specification;
@@ -34,7 +32,7 @@ public class CreateSpecificationUnit
                 .WithTags("SpecificationUnit")
                 .WithDescription("This API is for Admin create specification unit")
                 .WithSummary("Create specification unit")
-                .Produces<SpecificationUnit>(StatusCodes.Status200OK)
+                .Produces<SpecificationUnitResponse>(StatusCodes.Status200OK)
                 .WithJwtValidation()
                 .WithRequestValidation<Request>()
                 .WithRolesValidation(Role.Admin, Role.Buyer);
@@ -43,31 +41,12 @@ public class CreateSpecificationUnit
 
     public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context, [FromServices] TokenService tokenService)
     {
-        var user = await context.Users.FirstOrDefaultAsync(user => user.Email == request.Name);
-
-        if (user == null)
+        var specificationUnit = new SpecificationUnit
         {
-            throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEV_0000)
-                .AddReason("Lỗi người dùng", "Người dùng không tồn tại")
-                .Build();
-        }
-
-        if (user.Status == UserStatus.Pending)
-        {
-            throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0001)
-                .AddReason("Lỗi người dùng", "Người dùng chưa xác thực")
-                .Build();
-        }
-
-        var tokenInfo = user.ToTokenRequest();
-        string token = tokenService.CreateToken(tokenInfo!);
-        string rfToken = tokenService.CreateRefreshToken(tokenInfo!);
-        return Results.Ok(new TokenResponse
-        {
-            Token = token,
-            RefreshToken = rfToken
-        });
+            Name = request.Name,
+        };
+        context.SpecificationUnits.Add(specificationUnit);
+        await context.SaveChangesAsync();
+        return Results.Created("Created", specificationUnit.ToSpecificationUnitResponse());
     }
 }
