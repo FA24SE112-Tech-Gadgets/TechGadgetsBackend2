@@ -76,8 +76,8 @@ public class TokenService(IOptions<JwtSettings> jwtSettings)
         if (token.IsNullOrEmpty())
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0000)
-                .AddReason("Lỗi xác thực", "Thiếu mã Token")
+                .WithCode(TechGadgetErrorCode.WEA_00)
+                .AddReason("token", "Thiếu mã Token")
                 .Build();
         }
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -102,30 +102,30 @@ public class TokenService(IOptions<JwtSettings> jwtSettings)
 
             if (string.IsNullOrEmpty(userInfoJson))
                 throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0000)
-                .AddReason("Lỗi xác thực", "Không có thông tin người dùng trong mã Token.")
+                .WithCode(TechGadgetErrorCode.WEA_00)
+                .AddReason("token", "Không có thông tin người dùng trong mã Token.")
                 .Build();
 
             var checkClaim = principal.Claims.FirstOrDefault(c => c.Type == "RFTokenClaim" && c.Value == "ForVerifyOnly")?.Value;
 
             if (string.IsNullOrEmpty(checkClaim))
                 throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0000)
-                .AddReason("Lỗi xác thực", "Thiếu thông tin xác thực trong mã Token.")
+                .WithCode(TechGadgetErrorCode.WEA_00)
+                .AddReason("token", "Thiếu thông tin xác thực trong mã Token.")
                 .Build();
 
             // Deserialize the custom user info object
             var tokenInfo = JsonConvert.DeserializeObject<TokenRequest>(userInfoJson);
             var userInfo = tokenInfo.ToUser();
-            
-            return await context.Users.FirstOrDefaultAsync(u => u.Id == userInfo.Id);
+
+            return await context.Users.FirstOrDefaultAsync(u => u.Id == userInfo!.Id);
         }
         catch (Exception ex)
         {
             Console.WriteLine(ex);
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0000)
-                .AddReason("Lỗi xác thực", "Mã Token không hợp lệ.")
+                .WithCode(TechGadgetErrorCode.WEB_02)
+                .AddReason("token", "Mã Token không hợp lệ.")
                 .Build();
         }
     }

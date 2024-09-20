@@ -22,7 +22,7 @@ public class CreateBrand
         {
             RuleFor(r => r.Name)
                 .NotEmpty()
-                .WithMessage("Name không được để trống");
+                .WithMessage("Tên không được để trống");
 
             RuleFor(r => r.Logo)
                 .NotNull()
@@ -50,8 +50,8 @@ public class CreateBrand
         if (await context.Brands.AnyAsync(b => b.Name == request.Name))
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEB_0003)
-                .AddReason("Tên thương hiệu", TechGadgetErrorCode.WEB_0003.Title)
+                .WithCode(TechGadgetErrorCode.WEB_01)
+                .AddReason("name", "Tên thương hiệu đã tồn tại")
                 .Build();
         }
 
@@ -67,8 +67,8 @@ public class CreateBrand
                 await storageService.DeleteFileFromCloudStorage(logoUrl);
             }
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0001)
-                .AddReason("Logo thương hiệu", TechGadgetErrorCode.WES_0001.Title)
+                .WithCode(TechGadgetErrorCode.WES_00)
+                .AddReason("logo", "Lỗi khi lưu logo")
                 .Build();
         }
 

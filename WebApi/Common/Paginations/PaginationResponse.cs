@@ -18,8 +18,8 @@ public abstract class PaginationResponse<T>
         if (total < 0)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
-                .AddReason("Tổng", "Lỗi khi trả về dữ liệu danh sách cho người dùng.")
+                .WithCode(TechGadgetErrorCode.WES_00)
+                .AddReason("total", "Lỗi khi trả về dữ liệu danh sách cho người dùng.")
                 .Build();
         }
 
@@ -36,8 +36,8 @@ public abstract class PaginationResponse<T>
             if (Limit < 0)
             {
                 throw TechGadgetException.NewBuilder()
-                    .WithCode(TechGadgetErrorCode.WES_0000)
-                    .AddReason("Tổng số trang", "Lỗi khi tính tổng trang.")
+                    .WithCode(TechGadgetErrorCode.WES_00)
+                    .AddReason("totalPages", "Lỗi khi tính tổng trang.")
                     .Build();
             }
             return (int)((Total % Limit == 0) ? (Total / Limit) : ((Total / Limit) + 1));
@@ -49,8 +49,8 @@ public abstract class PaginationResponse<T>
         if (page == null || page < 0)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
-                .AddReason("Trang", "Lỗi khi gắn biến 'page'.")
+                .WithCode(TechGadgetErrorCode.WES_00)
+                .AddReason("page", "Lỗi khi gắn biến 'page'.")
                 .Build();
         }
         Page = page.Value;
@@ -61,8 +61,8 @@ public abstract class PaginationResponse<T>
         if (limit == null || limit < 1)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
-                .AddReason("Giới hạn", "Lỗi khi gắn biến 'limit'.")
+                .WithCode(TechGadgetErrorCode.WES_00)
+                .AddReason("limit", "Lỗi khi gắn biến 'limit'.")
                 .Build();
         }
         Limit = limit.Value;

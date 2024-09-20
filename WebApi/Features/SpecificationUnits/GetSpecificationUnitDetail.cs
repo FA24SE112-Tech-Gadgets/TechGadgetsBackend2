@@ -1,10 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using WebApi.Common.Endpoints;
-using WebApi.Data;
-using WebApi.Features.SpecificationUnits.Models;
 using Microsoft.EntityFrameworkCore;
-using WebApi.Features.SpecificationUnits.Mappers;
+using WebApi.Common.Endpoints;
 using WebApi.Common.Exceptions;
+using WebApi.Data;
+using WebApi.Features.SpecificationUnits.Mappers;
+using WebApi.Features.SpecificationUnits.Models;
 
 namespace WebApi.Features.SpecificationUnits;
 
@@ -28,8 +28,8 @@ public class GetSpecificationUnitDetail
         if (specificationUnit == null)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEB_0005)
-                .AddReason("Lỗi đơn vị", "Không tìm thấy đơn vị")
+                .WithCode(TechGadgetErrorCode.WEB_00)
+                .AddReason("specificationUnit", "Không tìm thấy đơn vị")
                 .Build();
         }
         return Results.Ok(specificationUnit.ToSpecificationUnitResponse());

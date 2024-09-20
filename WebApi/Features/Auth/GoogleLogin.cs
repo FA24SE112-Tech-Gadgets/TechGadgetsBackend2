@@ -103,29 +103,29 @@ public class GoogleLogin
                 if (user != null)
                 {
                     throw TechGadgetException.NewBuilder()
-                        .WithCode(TechGadgetErrorCode.WEA_0000)
-                        .AddReason("Sai phương thức đăng nhập", "Người dùng này đã đăng nhập bình thường")
+                        .WithCode(TechGadgetErrorCode.WEB_02)
+                        .AddReason("google", "Người dùng này đã đăng nhập bình thường")
                         .Build();
                 }
 
                 throw TechGadgetException.NewBuilder()
-                        .WithCode(TechGadgetErrorCode.WEB_0000)
-                        .AddReason("Lỗi lạ không xác định", "Lỗi lạ không xác định")
+                        .WithCode(TechGadgetErrorCode.WEB_02)
+                        .AddReason("google", "Lỗi lạ không xác định")
                         .Build();
             }
         }
         catch (HttpRequestException ex)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0000)
-                .AddReason("Google HTTP không được phép", ex.Message)
+                .WithCode(TechGadgetErrorCode.WEB_02)
+                .AddReason("google", ex.Message)
                 .Build();
         }
         catch (JsonException ex)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0000)
-                .AddReason("JSON trái phép của Google", ex.Message)
+                .WithCode(TechGadgetErrorCode.WEB_02)
+                .AddReason("google", ex.Message)
                 .Build();
         }
     }

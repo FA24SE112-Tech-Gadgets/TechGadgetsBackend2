@@ -21,15 +21,15 @@ public class JwtValidationFilter(IOptions<JwtSettings> jwtSettings) : IEndpointF
         if (!context.HttpContext.Request.Headers.TryGetValue(AuthorizationHeader, out var authHeader) ||
             !authHeader.ToString().StartsWith(BearerPrefix))
         {
-            var reason = new Reason("Thiếu mã Token", "Thiếu mã Token");
+            var reason = new Reason("token", "Thiếu mã Token");
             var reasons = new List<Reason> { reason };
             var errorResponse = new TechGadgetErrorResponse
             {
-                Code = TechGadgetErrorCode.WEA_0000.Code,
-                Title = TechGadgetErrorCode.WEA_0000.Title,
+                Code = TechGadgetErrorCode.WEA_00.Code,
+                Title = TechGadgetErrorCode.WEA_00.Title,
                 Reasons = reasons
             };
-            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEA_0000.Status);
+            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEA_00.Status);
         }
 
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -52,15 +52,15 @@ public class JwtValidationFilter(IOptions<JwtSettings> jwtSettings) : IEndpointF
         catch (Exception ex)
         {
             Console.WriteLine(ex.ToString());
-            var reason = new Reason("Lỗi xác thực", "Mã Token không hợp lệ.");
+            var reason = new Reason("token", "Mã Token không hợp lệ.");
             var reasons = new List<Reason> { reason };
             var errorResponse = new TechGadgetErrorResponse
             {
-                Code = TechGadgetErrorCode.WEA_0000.Code,
-                Title = TechGadgetErrorCode.WEA_0000.Title,
+                Code = TechGadgetErrorCode.WEB_02.Code,
+                Title = TechGadgetErrorCode.WEB_02.Title,
                 Reasons = reasons
             };
-            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEA_0000.Status);
+            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEB_02.Status);
         }
         var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
 
@@ -69,30 +69,30 @@ public class JwtValidationFilter(IOptions<JwtSettings> jwtSettings) : IEndpointF
 
         if (string.IsNullOrEmpty(userInfoJson))
         {
-            var reason = new Reason("Lỗi xác thực", "Không có thông tin người dùng trong mã Token.");
+            var reason = new Reason("token", "Không có thông tin người dùng trong mã Token.");
             var reasons = new List<Reason> { reason };
             var errorResponse = new TechGadgetErrorResponse
             {
-                Code = TechGadgetErrorCode.WEA_0000.Code,
-                Title = TechGadgetErrorCode.WEA_0000.Title,
+                Code = TechGadgetErrorCode.WEA_00.Code,
+                Title = TechGadgetErrorCode.WEA_00.Title,
                 Reasons = reasons
             };
-            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEA_0000.Status);
+            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEA_00.Status);
         }
 
         var checkClaim = principal.Claims.FirstOrDefault(c => c.Type == "TokenClaim" && c.Value == "ForVerifyOnly")?.Value;
 
         if (string.IsNullOrEmpty(checkClaim))
         {
-            var reason = new Reason("Lỗi xác thực", "Thiếu thông tin xác thực trong mã Token.");
+            var reason = new Reason("token", "Thiếu thông tin xác thực trong mã Token.");
             var reasons = new List<Reason> { reason };
             var errorResponse = new TechGadgetErrorResponse
             {
-                Code = TechGadgetErrorCode.WEA_0000.Code,
-                Title = TechGadgetErrorCode.WEA_0000.Title,
+                Code = TechGadgetErrorCode.WEA_00.Code,
+                Title = TechGadgetErrorCode.WEA_00.Title,
                 Reasons = reasons
             };
-            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEA_0000.Status);
+            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEA_00.Status);
         }
 
         return await next(context);
