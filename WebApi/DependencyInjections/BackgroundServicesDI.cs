@@ -1,4 +1,4 @@
-﻿using WebApi.Services.Background.UserVerifyBG;
+﻿using WebApi.Services.Background.UserVerifies;
 
 namespace WebApi.DependencyInjections;
 

@@ -18,9 +18,19 @@ public static class SignupUser
     {
         public Validator()
         {
-            RuleFor(r => r.FullName).NotEmpty();
-            RuleFor(r => r.Password).NotEmpty().MinimumLength(8);
-            RuleFor(r => r.Email).NotEmpty().EmailAddress();
+            RuleFor(r => r.FullName)
+                .NotEmpty()
+                .WithMessage("Tên không được để trống");
+            RuleFor(r => r.Password)
+                .NotEmpty()
+                .WithMessage("Mật khẩu không được để trống")
+                .MinimumLength(8)
+                .WithMessage("Mật khẩu tối thiểu 8 kí tự");
+            RuleFor(r => r.Email)
+                .NotEmpty()
+                .WithMessage("Email không được để trống")
+                .EmailAddress()
+                .WithMessage("Email không đúng cú pháp");
         }
 
     }
@@ -56,16 +66,16 @@ public static class SignupUser
         if (await context.Users.AnyAsync(us => us.Email == user.Email && us.Status == UserStatus.Pending))
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
-                .AddReason("Lỗi người dùng", "Người dùng chưa xác thực tài khoản")
+                .WithCode(TechGadgetErrorCode.WEB_03)
+                .AddReason("user", "Người dùng chưa xác thực tài khoản")
                 .Build();
         }
 
         if (await context.Users.AnyAsync(us => us.Email == user.Email && us.Status != UserStatus.Pending))
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
-                .AddReason("Lỗi Email", "Email này đã được đăng ký trước đó.")
+                .WithCode(TechGadgetErrorCode.WEB_01)
+                .AddReason("email", "Email này đã được đăng ký trước đó.")
                 .Build();
         }
 

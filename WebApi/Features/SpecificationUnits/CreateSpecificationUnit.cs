@@ -4,11 +4,11 @@ using WebApi.Common.Endpoints;
 using WebApi.Common.Filters;
 using WebApi.Data;
 using WebApi.Data.Entities;
-using WebApi.Features.Specification.Mappers;
-using WebApi.Features.Specification.Models;
+using WebApi.Features.SpecificationUnits.Mappers;
+using WebApi.Features.SpecificationUnits.Models;
 using WebApi.Services.Auth;
 
-namespace WebApi.Features.Specification;
+namespace WebApi.Features.SpecificationUnits;
 
 public class CreateSpecificationUnit
 {
@@ -28,14 +28,14 @@ public class CreateSpecificationUnit
     {
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPost("specification/unit", Handler)
-                .WithTags("SpecificationUnit")
+            app.MapPost("specification-unit", Handler)
+                .WithTags("Specification Unit")
                 .WithDescription("This API is for Admin create specification unit")
                 .WithSummary("Create specification unit")
                 .Produces<SpecificationUnitResponse>(StatusCodes.Status200OK)
                 .WithJwtValidation()
                 .WithRequestValidation<Request>()
-                .WithRolesValidation(Role.Admin, Role.Buyer);
+                .WithRolesValidation(Role.Admin, Role.Seller);
         }
     }
 

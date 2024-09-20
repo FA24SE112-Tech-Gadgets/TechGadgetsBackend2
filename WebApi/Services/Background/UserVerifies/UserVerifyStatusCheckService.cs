@@ -2,7 +2,7 @@
 using WebApi.Data;
 using WebApi.Data.Entities;
 
-namespace WebApi.Services.Background.UserVerifyBG;
+namespace WebApi.Services.Background.UserVerifies;
 
 public class UserVerifyStatusCheckService(IServiceProvider serviceProvider) : BackgroundService
 {
