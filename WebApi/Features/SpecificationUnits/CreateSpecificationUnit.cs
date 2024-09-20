@@ -8,7 +8,6 @@ using WebApi.Data;
 using WebApi.Data.Entities;
 using WebApi.Features.SpecificationUnits.Mappers;
 using WebApi.Features.SpecificationUnits.Models;
-using WebApi.Services.Auth;
 
 namespace WebApi.Features.SpecificationUnits;
 
@@ -40,7 +39,7 @@ public class CreateSpecificationUnit
         }
     }
 
-    public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context, [FromServices] TokenService tokenService)
+    public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context)
     {
         var isDuplicated = await context.SpecificationUnits.AnyAsync(u => u.Name == request.Name);
         if (isDuplicated)

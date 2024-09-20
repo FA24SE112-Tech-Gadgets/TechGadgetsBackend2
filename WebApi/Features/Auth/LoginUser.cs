@@ -78,6 +78,14 @@ public class LoginUser
                 .Build();
         }
 
+        if (user.LoginMethod == LoginMethod.Google)
+        {
+            throw TechGadgetException.NewBuilder()
+                .WithCode(TechGadgetErrorCode.WEB_02)
+                .AddReason("user", "Tài khoản này đăng nhập bằng Google")
+                .Build();
+        }
+
         var tokenInfo = user.ToTokenRequest();
         string token = tokenService.CreateToken(tokenInfo!);
         string rfToken = tokenService.CreateRefreshToken(tokenInfo!);

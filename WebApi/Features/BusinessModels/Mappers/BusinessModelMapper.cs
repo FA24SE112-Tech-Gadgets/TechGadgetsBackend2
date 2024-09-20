@@ -1,5 +1,6 @@
 ﻿using WebApi.Data.Entities;
 using WebApi.Features.BusinessModels.Models;
+using WebApi.Features.SpecificationUnits.Models;
 
 namespace WebApi.Features.BusinessModels.Mappers;
 
@@ -17,5 +18,18 @@ public static class BusinessModelMapper
             Id = businessModel.Id,
             Name = businessModel.Name,
         };
+    }
+
+    public static List<BusinessModelResponse>? ToListBusinessModelsResponse(this List<BusinessModel> businessModels)
+    {
+        if (businessModels != null)
+        {
+            return businessModels.Select(bu => new BusinessModelResponse
+            {
+                Id = bu.Id,
+                Name = bu.Name
+            }).ToList();
+        }
+        return null;
     }
 }
