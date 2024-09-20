@@ -57,24 +57,24 @@ public class LoginUser
         if (user == null)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEB_0002)
-                .AddReason("Lỗi người dùng", "Người dùng không tồn tại")
+                .WithCode(TechGadgetErrorCode.WEB_00)
+                .AddReason("user", "Người dùng không tồn tại")
             .Build();
         }
 
-        if (!VerifyHashedPassword(user.Password, request.Password))
+        if (!VerifyHashedPassword(user.Password!, request.Password))
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0000)
-                .AddReason("Mật khẩu", "Mật khẩu không chính xác")
+                .WithCode(TechGadgetErrorCode.WEB_02)
+                .AddReason("password", "Mật khẩu không chính xác")
                 .Build();
         }
 
         if (user.Status == UserStatus.Pending)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0001)
-                .AddReason("Lỗi người dùng", "Người dùng chưa xác thực")
+                .WithCode(TechGadgetErrorCode.WEB_03)
+                .AddReason("user", "Người dùng chưa xác thực")
                 .Build();
         }
 

@@ -22,11 +22,11 @@ public class RequestValidationFilter<TRequest>(IValidator<TRequest>? validator) 
         {
             var errorResponse = new TechGadgetErrorResponse
             {
-                Code = TechGadgetErrorCode.WEA_0000.Code,
-                Title = TechGadgetErrorCode.WEA_0000.Title,
+                Code = TechGadgetErrorCode.WEV_00.Code,
+                Title = TechGadgetErrorCode.WEV_00.Title,
                 Reasons = result.Errors.Select(err => new Reason(err.PropertyName, err.ErrorMessage)).ToList()
             };
-            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEA_0000.Status);
+            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEV_00.Status);
         }
 
         return await next(context);

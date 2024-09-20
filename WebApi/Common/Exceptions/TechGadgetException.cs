@@ -67,7 +67,7 @@ public class TechGadgetException : Exception
 
     public class Builder
     {
-        public TechGadgetErrorCode ErrorCode { get; private set; } = TechGadgetErrorCode.WEB_0000; // Default value
+        public TechGadgetErrorCode ErrorCode { get; private set; } = TechGadgetErrorCode.WES_00; // Default value
         public List<Reason> Reasons { get; }
 
         public Builder()
