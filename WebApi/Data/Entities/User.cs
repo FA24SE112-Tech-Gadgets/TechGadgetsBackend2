@@ -37,7 +37,7 @@ public enum LoginMethod
 
 public enum Role
 {
-    Admin, Buyer, Seller
+    Admin, Buyer
 }
 
 public enum UserStatus

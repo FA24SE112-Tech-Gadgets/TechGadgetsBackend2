@@ -27,8 +27,8 @@ app.UseCorsPolicy();
 app.UseOpenApi();
 app.UseTechGadgetsExceptionHandler();
 app.ApplyMigrations();
-app.UseExceptionPageInLocal();
+//app.UseExceptionPageInLocal();
 
-app.MapEndpoints(app.MapGroup("api"));
+app.MapEndpoints();
 
 app.Run();

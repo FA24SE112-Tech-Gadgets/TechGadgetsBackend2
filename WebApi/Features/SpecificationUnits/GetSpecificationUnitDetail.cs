@@ -18,7 +18,7 @@ public class GetSpecificationUnitDetail
             app.MapGet("specification-unit/{id}", Handler)
                 .WithTags("Specification Unit")
                 .WithDescription("This API is for getting specification unit detail")
-                .WithSummary("Create specification unit")
+                .WithSummary("Get specification unit by Id")
                 .Produces<SpecificationUnitResponse>(StatusCodes.Status200OK)
                 .WithJwtValidation();
         }
