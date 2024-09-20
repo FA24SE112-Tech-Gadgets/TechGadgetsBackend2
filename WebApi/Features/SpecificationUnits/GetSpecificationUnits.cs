@@ -7,6 +7,7 @@ using WebApi.Services.Auth;
 using WebApi.Features.SpecificationUnits.Models;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Features.SpecificationUnits.Mappers;
+using WebApi.Common.Filters;
 
 namespace WebApi.Features.SpecificationUnits;
 
@@ -25,7 +26,8 @@ public class GetSpecificationUnits
                 .WithTags("Specification Unit")
                 .WithDescription("Get list of specification units or get by unit's name")
                 .WithSummary("List of specification units")
-                .Produces<SpecificationUnitsResponse>(StatusCodes.Status200OK);
+                .Produces<SpecificationUnitsResponse>(StatusCodes.Status200OK)
+                .WithJwtValidation();
         }
     }
 
