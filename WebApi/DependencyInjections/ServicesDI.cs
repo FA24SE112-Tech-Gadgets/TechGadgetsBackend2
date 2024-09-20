@@ -1,5 +1,7 @@
 ﻿using WebApi.Services.Auth;
 using WebApi.Services.Mail;
+using WebApi.Services.Payment;
+using WebApi.Services.Storage;
 using WebApi.Services.VerifyCode;
 
 namespace WebApi.DependencyInjections;
@@ -12,5 +14,7 @@ public static class ServicesDI
         services.AddScoped<MailService>();
         services.AddScoped<VerifyCodeService>();
         services.AddScoped<CurrentUserService>();
+        services.AddScoped<GoogleStorageService>();
+        services.AddScoped<VnPayPaymentService>();
     }
 }

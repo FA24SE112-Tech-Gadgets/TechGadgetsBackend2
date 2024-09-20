@@ -20,14 +20,13 @@ public class RequestValidationFilter<TRequest>(IValidator<TRequest>? validator) 
 
         if (!result.IsValid)
         {
-            //return TypedResults.ValidationProblem(result.ToDictionary());
             var errorResponse = new TechGadgetErrorResponse
             {
                 Code = TechGadgetErrorCode.WEA_0000.Code,
                 Title = TechGadgetErrorCode.WEA_0000.Title,
                 Reasons = result.Errors.Select(err => new Reason(err.PropertyName, err.ErrorMessage)).ToList()
             };
-            return Results.Json(errorResponse, statusCode: (int) TechGadgetErrorCode.WEA_0000.Status);
+            return Results.Json(errorResponse, statusCode: (int)TechGadgetErrorCode.WEA_0000.Status);
         }
 
         return await next(context);
