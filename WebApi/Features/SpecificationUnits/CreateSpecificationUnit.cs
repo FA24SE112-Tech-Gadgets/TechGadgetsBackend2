@@ -1,6 +1,8 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using WebApi.Common.Endpoints;
+using WebApi.Common.Exceptions;
 using WebApi.Common.Filters;
 using WebApi.Data;
 using WebApi.Data.Entities;
@@ -34,13 +36,20 @@ public class CreateSpecificationUnit
                 .WithSummary("Create specification unit")
                 .Produces<SpecificationUnitResponse>(StatusCodes.Status200OK)
                 .WithJwtValidation()
-                .WithRequestValidation<Request>()
-                .WithRolesValidation(Role.Admin, Role.Seller);
+                .WithRequestValidation<Request>();
         }
     }
 
     public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context, [FromServices] TokenService tokenService)
     {
+        var isDuplicated = await context.SpecificationUnits.AnyAsync(u => u.Name == request.Name);
+        if (isDuplicated)
+        {
+            throw TechGadgetException.NewBuilder()
+                .WithCode(TechGadgetErrorCode.WEB_01)
+                .AddReason("name", "Tên này đã được tạo trước đó.")
+                .Build();
+        }
         var specificationUnit = new SpecificationUnit
         {
             Name = request.Name,
