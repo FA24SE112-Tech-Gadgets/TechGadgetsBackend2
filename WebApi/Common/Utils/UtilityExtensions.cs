@@ -3,7 +3,7 @@ using System.Net.Sockets;
 
 namespace WebApi.Common.Utils;
 
-public static class UtitlityExtensions
+public static class UtilityExtensions
 {
     public static Guid ConvertToGuid(this string @this)
     {

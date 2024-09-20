@@ -1,4 +1,5 @@
 ﻿using WebApi.Common.Endpoints;
+using WebApi.Common.Filters;
 using WebApi.Features.Users.Mappers;
 using WebApi.Features.Users.Models;
 using WebApi.Services.Auth;
@@ -15,6 +16,7 @@ public class GetCurrentUser
                 .WithTags("Users")
                 .WithDescription("This API is to get current user")
                 .WithSummary("Current user")
+                .WithJwtValidation()
                 .Produces<UserResponse>(StatusCodes.Status200OK);
         }
     }
