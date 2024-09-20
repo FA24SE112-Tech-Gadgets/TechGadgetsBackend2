@@ -23,14 +23,6 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor, IOptio
         var authHeader = request?.Headers.Authorization.ToString();
         var token = authHeader?.Replace("Bearer ", string.Empty);
 
-        if (string.IsNullOrEmpty(token))
-        {
-            throw TechGadgetException.NewBuilder()
-                    .WithCode(TechGadgetErrorCode.WEA_0000)
-                    .AddReason("Lỗi xác thực", "Token không tồn tại")
-                    .Build();
-        }
-
         var tokenHandler = new JwtSecurityTokenHandler();
         var validationParameters = new TokenValidationParameters
         {
@@ -44,21 +36,7 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor, IOptio
 
         var userInfoJson = principal.Claims.FirstOrDefault(c => c.Type == "UserInfo")?.Value;
 
-        if (string.IsNullOrEmpty(userInfoJson))
-            throw TechGadgetException.NewBuilder()
-            .WithCode(TechGadgetErrorCode.WEA_0000)
-            .AddReason("Lỗi xác thực", "Không có thông tin người dùng trong mã Token.")
-            .Build();
-
-        var checkClaim = principal.Claims.FirstOrDefault(c => c.Type == "TokenClaim" && c.Value == "ForVerifyOnly")?.Value;
-
-        if (string.IsNullOrEmpty(checkClaim))
-            throw TechGadgetException.NewBuilder()
-            .WithCode(TechGadgetErrorCode.WEA_0000)
-            .AddReason("Lỗi xác thực", "Thiếu thông tin xác thực trong mã Token.")
-            .Build();
-
-        var userInfo = JsonConvert.DeserializeObject<TokenRequest>(userInfoJson);
+        var userInfo = JsonConvert.DeserializeObject<TokenRequest>(userInfoJson!);
 
         return await context.Users.FirstOrDefaultAsync(x => x.Id == userInfo!.Id);
     }
@@ -70,8 +48,8 @@ public class CurrentUserService(IHttpContextAccessor httpContextAccessor, IOptio
         if (user == null)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEA_0000)
-                .AddReason("Lỗi xác thực", "Người dùng không tồn tại.")
+                .WithCode(TechGadgetErrorCode.WEB_00)
+                .AddReason("user", "Người dùng không tồn tại.")
                 .Build();
         }
 
