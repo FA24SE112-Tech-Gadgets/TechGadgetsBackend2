@@ -1,6 +1,4 @@
-﻿using static Google.Apis.Requests.BatchRequest;
-
-namespace WebApi.Common.Exceptions;
+﻿namespace WebApi.Common.Exceptions;
 
 public class TechGadgetExceptionHandler(RequestDelegate next)
 {
