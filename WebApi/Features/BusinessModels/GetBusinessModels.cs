@@ -1,8 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
-using WebApi.Common.Endpoints;
+﻿using WebApi.Common.Endpoints;
 using WebApi.Common.Filters;
 using WebApi.Common.Paginations;
 using WebApi.Data;
+using WebApi.Features.Brands.Models;
 using WebApi.Features.BusinessModels.Mappers;
 using WebApi.Features.BusinessModels.Models;
 
@@ -10,9 +10,13 @@ namespace WebApi.Features.BusinessModels;
 
 public class GetBusinessModels
 {
-    public class Requestt : PaginationRequest
+    public class Requestt : IPagedRequest
     {
         public string? Name { get; set; }
+
+        public int? Page { get; set; }
+
+        public int? PageSize { get; set; }
     }
 
     public sealed class Endpoint : IEndpoint
@@ -23,25 +27,18 @@ public class GetBusinessModels
                 .WithTags("Business Model")
                 .WithDescription("Get list of business models or get by business model's name")
                 .WithSummary("List of business models")
-                .Produces<BusinessModelsResponse>(StatusCodes.Status200OK)
+                .Produces<PagedList<BusinessModelResponse>>(StatusCodes.Status200OK)
                 .WithJwtValidation();
         }
     }
 
     public static async Task<IResult> Handler([AsParameters] Requestt request, AppDbContext context)
     {
-        var businessModelsData = await context.BusinessModels
-                 .Where(u => u.Name.Contains(request.Name ?? ""))
-                 .Skip(request.Page * request.Limit)
-                 .Take(request.Limit)
-                 .ToListAsync();
-        int count = await context.BusinessModels.CountAsync();
-        var businessModels = businessModelsData.ToListBusinessModelsResponse();
+        var response = await context.BusinessModels
+                 .Where(bu => bu.Name.Contains(request.Name ?? ""))
+                 .Select(bu => bu.ToBusinessModelResponse())
+                 .ToPagedListAsync(request);
 
-        BusinessModelsResponse businessModelsResponse = new BusinessModelsResponse(businessModels!, count);
-        businessModelsResponse.SetPage(request.Page);
-        businessModelsResponse.SetLimit(request.Limit);
-
-        return Results.Ok(businessModelsResponse);
+        return Results.Ok(response);
     }
 }

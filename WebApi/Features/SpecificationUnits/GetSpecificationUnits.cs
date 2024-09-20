@@ -3,17 +3,21 @@ using WebApi.Common.Endpoints;
 using WebApi.Common.Paginations;
 using WebApi.Data;
 using WebApi.Features.SpecificationUnits.Models;
-using Microsoft.EntityFrameworkCore;
 using WebApi.Features.SpecificationUnits.Mappers;
 using WebApi.Common.Filters;
+using WebApi.Features.Brands.Models;
 
 namespace WebApi.Features.SpecificationUnits;
 
 public class GetSpecificationUnits
 {
-    public class Requestt : PaginationRequest
+    public class Request : IPagedRequest
     {
         public string? Name { get; set; }
+
+        public int? Page { get; set; }
+
+        public int? PageSize { get; set; }
     }
 
     public sealed class Endpoint : IEndpoint
@@ -24,25 +28,18 @@ public class GetSpecificationUnits
                 .WithTags("Specification Unit")
                 .WithDescription("Get list of specification units or get by unit's name")
                 .WithSummary("List of specification units")
-                .Produces<SpecificationUnitsResponse>(StatusCodes.Status200OK)
+                .Produces<PagedList<SpecificationUnitResponse>>(StatusCodes.Status200OK)
                 .WithJwtValidation();
         }
     }
 
-    public static async Task<IResult> Handler([AsParameters] Requestt request, AppDbContext context)
+    public static async Task<IResult> Handler([AsParameters] Request request, AppDbContext context)
     {
-        var specificationUnitsData = await context.SpecificationUnits
+        var response = await context.SpecificationUnits
                  .Where(u => u.Name.Contains(request.Name ?? ""))
-                 .Skip(request.Page * request.Limit)
-                 .Take(request.Limit)
-                 .ToListAsync();
-        int count = await context.SpecificationUnits.CountAsync();
-        var specificationUnits = specificationUnitsData.ToListSpecificationUnitsResponse();
+                 .Select(u => u.ToSpecificationUnitResponse())
+                 .ToPagedListAsync(request);
 
-        SpecificationUnitsResponse specificationUnitsResponse = new SpecificationUnitsResponse(specificationUnits!, count);
-        specificationUnitsResponse.SetPage(request.Page);
-        specificationUnitsResponse.SetLimit(request.Limit);
-
-        return Results.Ok(specificationUnitsResponse);
+        return Results.Ok(response);
     }
 }
