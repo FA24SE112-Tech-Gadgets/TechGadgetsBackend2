@@ -14,7 +14,7 @@ public class GetSpecificationUnitDetail
     {
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPost("specification-unit/{id}", Handler)
+            app.MapGet("specification-unit/{id}", Handler)
                 .WithTags("Specification Unit")
                 .WithDescription("This API is for getting specification unit detail")
                 .WithSummary("Create specification unit")
