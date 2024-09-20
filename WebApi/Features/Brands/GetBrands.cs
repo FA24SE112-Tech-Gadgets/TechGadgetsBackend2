@@ -27,7 +27,7 @@ public class GetBrands
                 .WithTags("Brands")
                 .WithDescription("This API is to get brands")
                 .WithSummary("Get Brands")
-                .Produces<BrandsResponse>(StatusCodes.Status200OK)
+                .Produces<PagedList<BrandResponse>>(StatusCodes.Status200OK)
                 .WithJwtValidation()
                 .WithRequestValidation<Request>();
         }
