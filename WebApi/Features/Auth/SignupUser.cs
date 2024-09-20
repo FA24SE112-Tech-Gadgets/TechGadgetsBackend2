@@ -56,7 +56,7 @@ public static class SignupUser
         if (await context.Users.AnyAsync(us => us.Email == user.Email && us.Status == UserStatus.Pending))
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
+                .WithCode(TechGadgetErrorCode.WEB_0001)
                 .AddReason("Lỗi người dùng", "Người dùng chưa xác thực tài khoản")
                 .Build();
         }
@@ -64,7 +64,7 @@ public static class SignupUser
         if (await context.Users.AnyAsync(us => us.Email == user.Email && us.Status != UserStatus.Pending))
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
+                .WithCode(TechGadgetErrorCode.WEB_0001)
                 .AddReason("Lỗi Email", "Email này đã được đăng ký trước đó.")
                 .Build();
         }

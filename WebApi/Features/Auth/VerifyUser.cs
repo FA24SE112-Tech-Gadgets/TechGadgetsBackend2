@@ -51,7 +51,7 @@ public class VerifyUser
         if (user == null)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEV_0000)
+                .WithCode(TechGadgetErrorCode.WEB_0002)
                 .AddReason("Lỗi người dùng", "Người dùng không tồn tại")
                 .Build();
         }

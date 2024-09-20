@@ -2,7 +2,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
-using System.Security.Principal;
 using WebApi.Common.Endpoints;
 using WebApi.Common.Exceptions;
 using WebApi.Common.Filters;
@@ -58,7 +57,7 @@ public class LoginUser
         if (user == null)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WEV_0000)
+                .WithCode(TechGadgetErrorCode.WEB_0002)
                 .AddReason("Lỗi người dùng", "Người dùng không tồn tại")
             .Build();
         }

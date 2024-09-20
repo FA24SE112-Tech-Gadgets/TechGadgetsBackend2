@@ -4,25 +4,16 @@ using WebApi.Services.Auth;
 
 namespace WebApi.Common.Filters;
 
-public class RolesFilter : IEndpointFilter
+public class RolesFilter(CurrentUserService currentUserService, Role[] acceptedRoles) : IEndpointFilter
 {
-    private readonly CurrentUserService _currentUserService;
-    private readonly Role[] _acceptedRoles = [];
-
-    public RolesFilter(CurrentUserService currentUserService, Role[] acceptedRoles)
-    {
-        _acceptedRoles = acceptedRoles;
-        _currentUserService = currentUserService;
-    }
-
-
     public async ValueTask<object?> InvokeAsync(EndpointFilterInvocationContext context, EndpointFilterDelegate next)
     {
-        var user = await _currentUserService.GetCurrentUser();
-        if (_acceptedRoles.Contains(user.Role))
+        var user = await currentUserService.GetCurrentUser();
+        if (acceptedRoles.Contains(user!.Role))
         {
             return await next(context);
-        } else
+        }
+        else
         {
             var reason = new Reason("Lỗi phân quyền", "Tài khoản không đủ thẩm quyền để truy cập API này.");
             var reasons = new List<Reason> { reason };

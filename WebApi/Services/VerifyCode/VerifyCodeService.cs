@@ -67,7 +67,7 @@ public class VerifyCodeService(MailService mailService, AppDbContext context)
         if (user.Status != UserStatus.Pending)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
+                .WithCode(TechGadgetErrorCode.WEB_0001)
                 .AddReason("Lỗi xác thực", "Tài khoản không trong trạng thái cần xác thực")
                 .Build();
         }
@@ -80,7 +80,7 @@ public class VerifyCodeService(MailService mailService, AppDbContext context)
         if (userVerify == null)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
+                .WithCode(TechGadgetErrorCode.WEB_0001)
                 .AddReason("Lỗi mã xác thực", "Mã xác thực không hợp lệ")
                 .Build();
         }
@@ -88,7 +88,7 @@ public class VerifyCodeService(MailService mailService, AppDbContext context)
         if (maxTime < DateTime.UtcNow)
         {
             throw TechGadgetException.NewBuilder()
-                .WithCode(TechGadgetErrorCode.WES_0000)
+                .WithCode(TechGadgetErrorCode.WEB_0001)
                 .AddReason("Lỗi mã xác thực", "Mã xác thực hết hạn")
                 .Build();
         }
