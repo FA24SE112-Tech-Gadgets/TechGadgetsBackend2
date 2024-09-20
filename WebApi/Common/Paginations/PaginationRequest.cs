@@ -14,9 +14,9 @@ public class PaginationRequest
     public int Limit { get; set; } = DefaultLimit;
 
 
-    public long GetOffset()
+    public long? GetOffset()
     {
-        return ((long)Page * Limit);
+        return ((long)Page! * Limit);
     }
 
     public override string ToString()

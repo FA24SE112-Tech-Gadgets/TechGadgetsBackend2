@@ -1,17 +1,17 @@
 ﻿using FluentValidation;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using WebApi.Common.Endpoints;
-using WebApi.Common.Exceptions;
 using WebApi.Common.Filters;
-using WebApi.Data;
 using WebApi.Data.Entities;
-using WebApi.Features.SpecificationUnits.Mappers;
-using WebApi.Features.SpecificationUnits.Models;
+using WebApi.Data;
+using Microsoft.EntityFrameworkCore;
+using WebApi.Common.Exceptions;
+using WebApi.Features.BusinessModels.Mappers;
+using WebApi.Features.BusinessModels.Models;
 
-namespace WebApi.Features.SpecificationUnits;
+namespace WebApi.Features.BusinessModels;
 
-public class CreateSpecificationUnit
+public class CreateBusinessModel
 {
     public record Request(string Name);
 
@@ -29,19 +29,20 @@ public class CreateSpecificationUnit
     {
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
-            app.MapPost("specification-unit", Handler)
-                .WithTags("Specification Unit")
-                .WithDescription("This API is for Admin create specification unit")
-                .WithSummary("Create specification unit")
-                .Produces<SpecificationUnitResponse>(StatusCodes.Status200OK)
+            app.MapPost("business-model", Handler)
+                .WithTags("Business Model")
+                .WithDescription("This API is for Admin create business model")
+                .WithSummary("Create business model")
+                .Produces<BusinessModelResponse>(StatusCodes.Status200OK)
                 .WithJwtValidation()
-                .WithRequestValidation<Request>();
+                .WithRequestValidation<Request>()
+                .WithRolesValidation(Role.Admin);
         }
     }
 
     public static async Task<IResult> Handler([FromBody] Request request, AppDbContext context)
     {
-        var isDuplicated = await context.SpecificationUnits.AnyAsync(u => u.Name == request.Name);
+        var isDuplicated = await context.BusinessModels.AnyAsync(u => u.Name == request.Name);
         if (isDuplicated)
         {
             throw TechGadgetException.NewBuilder()
@@ -49,12 +50,12 @@ public class CreateSpecificationUnit
                 .AddReason("name", "Tên này đã được tạo trước đó.")
                 .Build();
         }
-        var specificationUnit = new SpecificationUnit
+        var businessModel = new BusinessModel
         {
             Name = request.Name,
         };
-        context.SpecificationUnits.Add(specificationUnit);
+        context.BusinessModels.Add(businessModel);
         await context.SaveChangesAsync();
-        return Results.Created("Created", specificationUnit.ToSpecificationUnitResponse());
+        return Results.Created("Created", businessModel.ToBusinessModelResponse());
     }
 }
