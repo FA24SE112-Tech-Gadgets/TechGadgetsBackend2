@@ -29,7 +29,6 @@
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
-    <Folder Include="Data\Seeds\" />
     <Folder Include="Features\Sellers\" />
     <Folder Include="Services\Background\Orders\" />
   </ItemGroup>
