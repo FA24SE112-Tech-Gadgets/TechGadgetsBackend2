@@ -1,9 +1,7 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Mvc;
 using WebApi.Common.Endpoints;
 using WebApi.Common.Paginations;
 using WebApi.Data;
-using WebApi.Services.Auth;
 using WebApi.Features.SpecificationUnits.Models;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Features.SpecificationUnits.Mappers;
@@ -31,7 +29,7 @@ public class GetSpecificationUnits
         }
     }
 
-    public static async Task<IResult> Handler([AsParameters] Requestt request, AppDbContext context, [FromServices] TokenService tokenService)
+    public static async Task<IResult> Handler([AsParameters] Requestt request, AppDbContext context)
     {
         var specificationUnitsData = await context.SpecificationUnits
                  .Where(u => u.Name.Contains(request.Name ?? ""))
