@@ -16,14 +16,21 @@ public class CreateSellerApplication
 {
     public class Request
     {
+        [FromForm]
         public string? CompanyName { get; set; }
+        [FromForm]
         public string ShopName { get; set; }
+        [FromForm]
         public string ShippingAddress { get; set; }
+        [FromForm]
         public int BusinnessModelId { get; set; }
         public IFormFile? BusinessRegistrationCertificate { get; set; }
+        [FromForm]
         public string TaxCode { get; set; }
+        [FromForm]
         public string? RejectReason { get; set; }
-        public string Type { get; set; }
+        [FromForm]
+        public SellerApplicationType Type { get; set; }
     }
 
     public sealed class Validator : AbstractValidator<Request>
@@ -35,7 +42,7 @@ public class CreateSellerApplication
                 .When(sp => RequiresCompanyName(sp.BusinnessModelId))
                 .WithMessage("Tên công ty không được để trống");
             RuleFor(sp => sp.BusinessRegistrationCertificate)
-                .NotEmpty()
+                .NotNull()
                 .When(sp => RequiresCertificate(sp.BusinnessModelId))
                 .WithMessage("Giấy phép kinh doanh không được để trống");
             RuleFor(sp => sp.TaxCode)
@@ -49,6 +56,10 @@ public class CreateSellerApplication
             RuleFor(sp => sp.ShopName)
                 .NotEmpty()
                 .WithMessage("Tên cửa hàng không được để trống");
+            RuleFor(sp => sp.Type)
+                .NotNull()
+                .When(sp => sp.Type == SellerApplicationType.Create)
+                .WithMessage("Loại đơn phải là Create");
         }
         private static bool RequiresCompanyName(int businessModelId)
         {
@@ -119,11 +130,12 @@ public class CreateSellerApplication
         {
             app.MapPost("seller-application", Handler)
                 .WithTags("Seller Application")
-                .WithDescription("API is for register seller")
+                .WithDescription("API is for register seller. Note:" +
+                            "<br>&nbsp; - Cá nhân(Personal) thì không cần truyền CompanyName và BusinessRegistrationCertificate." +
+                            "<br>&nbsp; - Mã số thuế được duplicate(cho đơn giản) và format được quy định trong Business Rules." +
+                            "<br>&nbsp; - Địa chỉ lấy hàng (ShippingAddress) khác với địa chỉ trong User (2 địa chỉ này có thể trùng được nhưng nghĩa khác nhau).")
                 .WithSummary("Seller application")
                 .Produces<SpecificationUnitResponse>(StatusCodes.Status200OK)
-                .WithJwtValidation()
-                .WithRolesValidation(Role.Admin)
                 .WithRequestValidation<Request>();
         }
     }
@@ -142,8 +154,8 @@ public class CreateSellerApplication
         {
             Name = request.ShopName,
         };
-        context.SpecificationUnits.Add(specificationUnit);
-        await context.SaveChangesAsync();
+        //context.SpecificationUnits.Add(specificationUnit);
+        //await context.SaveChangesAsync();
         return Results.Created("Created", specificationUnit.ToSpecificationUnitResponse());
     }
 }
