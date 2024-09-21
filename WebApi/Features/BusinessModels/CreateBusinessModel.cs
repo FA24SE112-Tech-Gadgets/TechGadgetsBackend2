@@ -35,8 +35,8 @@ public class CreateBusinessModel
                 .WithSummary("Create business model")
                 .Produces<BusinessModelResponse>(StatusCodes.Status200OK)
                 .WithJwtValidation()
-                .WithRequestValidation<Request>()
-                .WithRolesValidation(Role.Admin);
+                .WithRolesValidation(Role.Admin)
+                .WithRequestValidation<Request>();
         }
     }
 

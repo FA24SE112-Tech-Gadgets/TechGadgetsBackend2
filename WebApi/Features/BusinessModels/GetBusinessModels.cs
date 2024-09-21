@@ -1,8 +1,6 @@
 ﻿using WebApi.Common.Endpoints;
-using WebApi.Common.Filters;
 using WebApi.Common.Paginations;
 using WebApi.Data;
-using WebApi.Features.Brands.Models;
 using WebApi.Features.BusinessModels.Mappers;
 using WebApi.Features.BusinessModels.Models;
 
@@ -27,8 +25,7 @@ public class GetBusinessModels
                 .WithTags("Business Model")
                 .WithDescription("Get list of business models or get by business model's name")
                 .WithSummary("List of business models")
-                .Produces<PagedList<BusinessModelResponse>>(StatusCodes.Status200OK)
-                .WithJwtValidation();
+                .Produces<PagedList<BusinessModelResponse>>(StatusCodes.Status200OK);
         }
     }
 

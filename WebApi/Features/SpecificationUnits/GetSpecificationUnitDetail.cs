@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore;
 using WebApi.Common.Endpoints;
 using WebApi.Common.Exceptions;
-using WebApi.Common.Filters;
 using WebApi.Data;
 using WebApi.Features.SpecificationUnits.Mappers;
 using WebApi.Features.SpecificationUnits.Models;
@@ -19,8 +18,7 @@ public class GetSpecificationUnitDetail
                 .WithTags("Specification Unit")
                 .WithDescription("This API is for getting specification unit detail")
                 .WithSummary("Get specification unit by Id")
-                .Produces<SpecificationUnitResponse>(StatusCodes.Status200OK)
-                .WithJwtValidation();
+                .Produces<SpecificationUnitResponse>(StatusCodes.Status200OK);
         }
     }
 
