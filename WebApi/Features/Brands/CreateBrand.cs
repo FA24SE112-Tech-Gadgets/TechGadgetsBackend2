@@ -16,7 +16,6 @@ public class CreateBrand
 {
     public class Request
     {
-        [FromForm]
         public string Name { get; set; } = default!;
         public IFormFile Logo { get; set; } = default!;
     }
@@ -50,7 +49,7 @@ public class CreateBrand
         }
     }
 
-    public static async Task<IResult> Handler([AsParameters] Request request, AppDbContext context, GoogleStorageService storageService)
+    public static async Task<IResult> Handler([FromForm] Request request, AppDbContext context, GoogleStorageService storageService)
     {
         if (await context.Brands.AnyAsync(b => b.Name == request.Name))
         {
