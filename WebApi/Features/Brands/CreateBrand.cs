@@ -88,6 +88,6 @@ public class CreateBrand
 
         var response = brand.ToBrandResponse();
 
-        return Results.Json(response, statusCode: 201);
+        return Results.Json(response, statusCode: StatusCodes.Status201Created);
     }
 }

@@ -13,7 +13,7 @@ public class SellerApplication
     public string TaxCode { get; set; } = default!;
     public string RejectReason { get; set; } = default!;
     public SellerApplicationStatus Status { get; set; }
-    public string Type { get; set; } = default!;
+    public SellerApplicationType Type { get; set; }
     public DateTime CreatedAt { get; set; }
 
     public User? User { get; set; }
@@ -24,4 +24,9 @@ public class SellerApplication
 public enum SellerApplicationStatus
 {
     Approved, Rejected, Pending
+}
+
+public enum SellerApplicationType
+{
+    Create, Update
 }
