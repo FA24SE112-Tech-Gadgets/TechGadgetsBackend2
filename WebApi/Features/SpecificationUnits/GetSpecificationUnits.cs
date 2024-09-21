@@ -28,8 +28,7 @@ public class GetSpecificationUnits
                 .WithTags("Specification Unit")
                 .WithDescription("Get list of specification units or get by unit's name")
                 .WithSummary("List of specification units")
-                .Produces<PagedList<SpecificationUnitResponse>>(StatusCodes.Status200OK)
-                .WithJwtValidation();
+                .Produces<PagedList<SpecificationUnitResponse>>(StatusCodes.Status200OK);
         }
     }
 

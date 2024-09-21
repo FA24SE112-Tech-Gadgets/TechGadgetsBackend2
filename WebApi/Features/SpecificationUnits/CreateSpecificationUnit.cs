@@ -35,6 +35,7 @@ public class CreateSpecificationUnit
                 .WithSummary("Create specification unit")
                 .Produces<SpecificationUnitResponse>(StatusCodes.Status200OK)
                 .WithJwtValidation()
+                .WithRolesValidation(Role.Admin)
                 .WithRequestValidation<Request>();
         }
     }
