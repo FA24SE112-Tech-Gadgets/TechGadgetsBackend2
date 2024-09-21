@@ -12,5 +12,7 @@ public class SellerApplicationConfiguration : IEntityTypeConfiguration<SellerApp
 
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
         builder.Property(x => x.Status).HasConversion<string>();
+        builder.Property(x => x.Type).HasConversion<string>();
+        builder.Property(x => x.BusinessModel).HasConversion<string>();
     }
 }
