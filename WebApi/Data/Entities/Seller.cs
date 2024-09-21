@@ -8,7 +8,7 @@ public class Seller
     public string ShopName { get; set; } = default!;
     public string ShippingAddress { get; set; } = default!;
     public string ShopAddress { get; set; } = default!;
-    public int BusinessModelId { get; set; }
+    public BusinessModel BusinessModel { get; set; }
     public string BusinessRegistrationCertificateUrl { get; set; } = default!;
     public string TaxCode { get; set; } = default!;
     public SellerStatus Status { get; set; }
@@ -16,7 +16,6 @@ public class Seller
     public DateTime UpdatedAt { get; set; }
 
     public User? User { get; set; }
-    public BusinessModel? BusinessModel { get; set; }
     public SellerPage? SellerPage { get; set; }
     public ICollection<Gadget> Gadgets { get; set; } = [];
     public ICollection<Voucher> Vouchers { get; set; } = [];
@@ -29,4 +28,9 @@ public class Seller
 public enum SellerStatus
 {
     Active, Inactive
+}
+
+public enum BusinessModel
+{
+    Personal, BusinessHousehold, Company
 }

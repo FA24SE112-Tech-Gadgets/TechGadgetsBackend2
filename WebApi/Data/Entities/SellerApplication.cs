@@ -8,7 +8,7 @@ public class SellerApplication
     public string ShopName { get; set; } = default!;
     public string ShippingAddress { get; set; } = default!;
     public string ShopAddress { get; set; } = default!;
-    public int BusinessModelId { get; set; }
+    public BusinessModel BusinessModel { get; set; }
     public string? BusinessRegistrationCertificateUrl { get; set; }
     public string TaxCode { get; set; } = default!;
     public string RejectReason { get; set; } = default!;
@@ -17,7 +17,6 @@ public class SellerApplication
     public DateTime CreatedAt { get; set; }
 
     public User? User { get; set; }
-    public BusinessModel? BusinessModel { get; set; }
     public ICollection<BillingMailApplication> BillingMailApplications { get; set; } = [];
 }
 
