@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WebApi.Data;
@@ -11,9 +12,11 @@ using WebApi.Data;
 namespace WebApi.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240921024734_ModifySellerApplicationEntity")]
+    partial class ModifySellerApplicationEntity
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -100,6 +103,23 @@ namespace WebApi.Data.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("BrandCategory", (string)null);
+                });
+
+            modelBuilder.Entity("WebApi.Data.Entities.BusinessModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BusinessModel", (string)null);
                 });
 
             modelBuilder.Entity("WebApi.Data.Entities.Cart", b =>
@@ -601,9 +621,8 @@ namespace WebApi.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BusinessModel")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("BusinessModelId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("BusinessRegistrationCertificateUrl")
                         .IsRequired()
@@ -644,6 +663,8 @@ namespace WebApi.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("BusinessModelId");
+
                     b.HasIndex("UserId")
                         .IsUnique();
 
@@ -658,9 +679,8 @@ namespace WebApi.Data.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<string>("BusinessModel")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("BusinessModelId")
+                        .HasColumnType("integer");
 
                     b.Property<string>("BusinessRegistrationCertificateUrl")
                         .HasColumnType("text");
@@ -703,6 +723,8 @@ namespace WebApi.Data.Migrations
                         .HasColumnType("integer");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("BusinessModelId");
 
                     b.HasIndex("UserId");
 
@@ -893,38 +915,38 @@ namespace WebApi.Data.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedAt = new DateTime(2023, 9, 14, 5, 37, 42, 345, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 9, 21, 2, 47, 34, 326, DateTimeKind.Utc).AddTicks(2452),
                             Email = "admin1@gmail.com",
                             FullName = "Admin 1",
                             LoginMethod = "Default",
                             Password = "5wJ0xMM/o1DPaTby8haqjIeEx0hqnJfyw4SmivYCGT17khWSPTXkR+56laWZr3/U",
                             Role = "Admin",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2023, 9, 14, 5, 37, 42, 345, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2024, 9, 21, 2, 47, 34, 326, DateTimeKind.Utc).AddTicks(2456)
                         },
                         new
                         {
                             Id = 2,
-                            CreatedAt = new DateTime(2023, 9, 14, 5, 37, 42, 345, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 9, 21, 2, 47, 34, 326, DateTimeKind.Utc).AddTicks(2459),
                             Email = "admin2@gmail.com",
                             FullName = "Admin 2",
                             LoginMethod = "Default",
                             Password = "5wJ0xMM/o1DPaTby8haqjIeEx0hqnJfyw4SmivYCGT17khWSPTXkR+56laWZr3/U",
                             Role = "Admin",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2023, 9, 14, 5, 37, 42, 345, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2024, 9, 21, 2, 47, 34, 326, DateTimeKind.Utc).AddTicks(2460)
                         },
                         new
                         {
                             Id = 3,
-                            CreatedAt = new DateTime(2023, 9, 14, 5, 37, 42, 345, DateTimeKind.Utc),
+                            CreatedAt = new DateTime(2024, 9, 21, 2, 47, 34, 326, DateTimeKind.Utc).AddTicks(2463),
                             Email = "admin3@gmail.com",
                             FullName = "Admin 3",
                             LoginMethod = "Default",
                             Password = "5wJ0xMM/o1DPaTby8haqjIeEx0hqnJfyw4SmivYCGT17khWSPTXkR+56laWZr3/U",
                             Role = "Admin",
                             Status = "Active",
-                            UpdatedAt = new DateTime(2023, 9, 14, 5, 37, 42, 345, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2024, 9, 21, 2, 47, 34, 326, DateTimeKind.Utc).AddTicks(2463)
                         });
                 });
 
@@ -1341,22 +1363,38 @@ namespace WebApi.Data.Migrations
 
             modelBuilder.Entity("WebApi.Data.Entities.Seller", b =>
                 {
+                    b.HasOne("WebApi.Data.Entities.BusinessModel", "BusinessModel")
+                        .WithMany("Sellers")
+                        .HasForeignKey("BusinessModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WebApi.Data.Entities.User", "User")
                         .WithOne("Seller")
                         .HasForeignKey("WebApi.Data.Entities.Seller", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("BusinessModel");
+
                     b.Navigation("User");
                 });
 
             modelBuilder.Entity("WebApi.Data.Entities.SellerApplication", b =>
                 {
+                    b.HasOne("WebApi.Data.Entities.BusinessModel", "BusinessModel")
+                        .WithMany("SellerApplications")
+                        .HasForeignKey("BusinessModelId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("WebApi.Data.Entities.User", "User")
                         .WithMany("SellerApplications")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("BusinessModel");
 
                     b.Navigation("User");
                 });
@@ -1489,6 +1527,13 @@ namespace WebApi.Data.Migrations
                     b.Navigation("Gadgets");
 
                     b.Navigation("GadgetsRequestBrands");
+                });
+
+            modelBuilder.Entity("WebApi.Data.Entities.BusinessModel", b =>
+                {
+                    b.Navigation("SellerApplications");
+
+                    b.Navigation("Sellers");
                 });
 
             modelBuilder.Entity("WebApi.Data.Entities.Cart", b =>

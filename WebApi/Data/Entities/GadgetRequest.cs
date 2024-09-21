@@ -7,7 +7,7 @@ public class GadgetRequest
     public string GadgetName { get; set; } = default!;
     public int Price { get; set; }
     public GadgetRequestStatus Status { get; set; }
-    public string Type { get; set; } = default!;
+    public GadgetRequestType Type { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 
@@ -20,4 +20,9 @@ public class GadgetRequest
 public enum GadgetRequestStatus
 {
     Approved, Rejected, Pending
+}
+
+public enum GadgetRequestType
+{
+    Create, Update
 }
