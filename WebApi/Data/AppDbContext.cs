@@ -10,7 +10,6 @@ public class AppDbContext(DbContextOptions options) : DbContext(options)
     public DbSet<BillingMailApplication> BillingMailApplications { get; set; }
     public DbSet<Brand> Brands { get; set; }
     public DbSet<BrandCategory> BrandCategories { get; set; }
-    public DbSet<BusinessModel> BusinessModels { get; set; }
     public DbSet<Cart> Carts { get; set; }
     public DbSet<CartGadget> CartGadgets { get; set; }
     public DbSet<Category> Categories { get; set; }

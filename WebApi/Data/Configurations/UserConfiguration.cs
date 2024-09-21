@@ -25,8 +25,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                 Status = UserStatus.Active,
                 LoginMethod = LoginMethod.Default,
                 Password = "5wJ0xMM/o1DPaTby8haqjIeEx0hqnJfyw4SmivYCGT17khWSPTXkR+56laWZr3/U",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Parse("2023-09-14T05:37:42.345Z", null, System.Globalization.DateTimeStyles.RoundtripKind),
+                UpdatedAt = DateTime.Parse("2023-09-14T05:37:42.345Z", null, System.Globalization.DateTimeStyles.RoundtripKind)
             },
 
             new User
@@ -38,8 +38,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                 Status = UserStatus.Active,
                 LoginMethod = LoginMethod.Default,
                 Password = "5wJ0xMM/o1DPaTby8haqjIeEx0hqnJfyw4SmivYCGT17khWSPTXkR+56laWZr3/U",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Parse("2023-09-14T05:37:42.345Z", null, System.Globalization.DateTimeStyles.RoundtripKind),
+                UpdatedAt = DateTime.Parse("2023-09-14T05:37:42.345Z", null, System.Globalization.DateTimeStyles.RoundtripKind)
             },
 
             new User
@@ -51,8 +51,8 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
                 Status = UserStatus.Active,
                 LoginMethod = LoginMethod.Default,
                 Password = "5wJ0xMM/o1DPaTby8haqjIeEx0hqnJfyw4SmivYCGT17khWSPTXkR+56laWZr3/U",
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
+                CreatedAt = DateTime.Parse("2023-09-14T05:37:42.345Z", null, System.Globalization.DateTimeStyles.RoundtripKind),
+                UpdatedAt = DateTime.Parse("2023-09-14T05:37:42.345Z", null, System.Globalization.DateTimeStyles.RoundtripKind)
             }
             );
     }
