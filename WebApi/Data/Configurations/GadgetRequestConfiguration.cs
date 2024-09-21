@@ -12,5 +12,6 @@ public class GadgetRequestConfiguration : IEntityTypeConfiguration<GadgetRequest
 
         builder.Property(x => x.Id).ValueGeneratedOnAdd();
         builder.Property(x => x.Status).HasConversion<string>();
+        builder.Property(x => x.Type).HasConversion<string>();
     }
 }
