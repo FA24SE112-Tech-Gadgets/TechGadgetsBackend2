@@ -4,12 +4,12 @@ public class SellerApplication
 {
     public int Id { get; set; }
     public int UserId { get; set; }
-    public string CompanyName { get; set; } = default!;
+    public string? CompanyName { get; set; }
     public string ShopName { get; set; } = default!;
     public string ShippingAddress { get; set; } = default!;
     public string ShopAddress { get; set; } = default!;
     public int BusinessModelId { get; set; }
-    public string BusinessRegistrationCertificateUrl { get; set; } = default!;
+    public string? BusinessRegistrationCertificateUrl { get; set; }
     public string TaxCode { get; set; } = default!;
     public string RejectReason { get; set; } = default!;
     public SellerApplicationStatus Status { get; set; }

@@ -29,7 +29,7 @@ public static class EndpointExtensions
 
     public static IApplicationBuilder MapEndpoints(this WebApplication app)
     {
-        app.MapEndpoints(app.MapGroup("api").WithOpenApi().DisableAntiforgery());
+        app.MapEndpoints(app.MapGroup("api").DisableAntiforgery());
 
         return app;
     }
